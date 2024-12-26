@@ -140,8 +140,20 @@ with tab5:
                 if data_type == 'Continuous':
                     if parametric:  # Parametric Tests
                         if group_selection == "One Sample":
-                            stat, p = stats.ttest_1samp(data.iloc[:, 0], 0)
+                            #Ask the user to enter the mean value for one-sample t-test
+                            population_mean = st.number_input("Enter the Population Mean (μ₀) for comparison:",
+                                                            min_value= -1000.0,
+                                                            max_value=1000.0,  
+                                                            value=0.0,
+                                                            step=0.1)
+                                                            
+                            stat, p = stats.ttest_1samp(data.iloc[:, 0], population_mean)
+                            # Display the results of the one-sample t-test
+                            st.toast("✅ Test Completed Successfully!", icon="🎯")
+                            st.write(f"**Population Mean (μ₀):** {population_mean:.4f}")
+                            st.write(f"**Test Statistic:** {stat:.4f}")
                             st.write(f"**One-Sample t-test p-value:** {p:.4f}")
+                            
                         elif group_selection == "Two Samples":
                             if paired == "Paired":
                                 stat, p = stats.ttest_rel(data.iloc[:, 0], data.iloc[:, 1])
