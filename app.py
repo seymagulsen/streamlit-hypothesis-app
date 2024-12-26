@@ -17,32 +17,44 @@ with st.sidebar:
     st.markdown("---")
 
     # Author Information
-    st.subheader("Developed by:")
-    st.write("**Şeyma Gülşen Akkuş**")
-    st.write("TED University - Applied Data Science")
+    with st.expander("👩‍🎓 About the Developer"):
+        st.write("Developed by **Şeyma Gülşen Akkuş**")
+        st.write("MSc. in Data Science, TED University")
+    
     st.markdown("---")
     
     # Reference Flowchart
-    st.header("🗺️ Hypothesis Testing Map")
-    st.image('images/Flow Chart for Cont. and Disc..png', caption='Statistical Test Decision Tree', use_container_width=True)
-    st.write("""Understand how hypothesis testing decisions are made based on assumptions and data type.""")
+    with st.expander("🗺️ Hypothesis Testing Map"):
+        st.image('images/Flow Chart for Cont. and Disc..png', caption='Statistical Test Decision Tree', use_container_width=True)
+        st.write("""Understand how hypothesis testing decisions are made based on assumptions and data type.""")
+    
     st.markdown("---")
     
     # Quick Links
-    st.subheader("Quick Links:")
-    st.markdown("- [📖 SciPy Documentation](https://scipy.org)")
-    st.markdown("- [💻 Streamlit Documentation](https://streamlit.io)")
-    st.markdown("- [📊 Matplotlib Documentation](https://matplotlib.org)")
+    with st.expander("🔗 Quick Links"):
+        st.markdown("- [📖 SciPy Documentation](https://scipy.org)")
+        st.markdown("- [💻 Streamlit Documentation](https://streamlit.io)")
+        st.markdown("- [📊 Matplotlib Documentation](https://matplotlib.org)")
 
 # --- Main Tabs ---
 st.title("ADS 511: Statistical Inference Methods Web Application")
 
+# Step Selector
+step = st.selectbox(
+    "Select Step:",
+    ["1️⃣ Data Input", "2️⃣ Data Type Selection", "3️⃣ Assumption Check", "4️⃣ Group Selection", "5️⃣ Run Test"]
+)
+
+# Progress Bar
+progress = ["1️⃣ Data Input", "2️⃣ Data Type Selection", "3️⃣ Assumption Check", "4️⃣ Group Selection", "5️⃣ Run Test"].index(step) + 1
+st.progress(progress / 5)
+
 tab1, tab2, tab3, tab4, tab5 = st.tabs([
-    "1️⃣ Data Input", 
-    "2️⃣ Data Type Selection", 
-    "3️⃣ Assumption Check", 
-    "4️⃣ Group Selection", 
-    "5️⃣ Run Test"
+    "📂 Data Input", 
+    "📊 Data Type Selection", 
+    "🔍 Assumption Check", 
+    "🧑‍🤝‍🧑 Group Selection", 
+    "🚀 Run Test"
 ])
 
 # --- Tab 1: Data Input ---
@@ -192,9 +204,13 @@ with tab5:
                 
                 ## --- Final Result Message ---
                 if p < 0.05:
-                    st.success("✅ **Test Result: Reject Null Hypothesis**")
+                    st.success("✅ **Statistically Significant Result:** Reject Null Hypothesis")
+                    st.info("This means there is sufficient evidence to support the alternative hypothesis.")
                 else:
-                    st.info("❌ **Test Result: Fail to Reject Null Hypothesis**")
-            
+                    st.warning("❌ **Not Statistically Significant:** Fail to Reject Null Hypothesis")
+                    st.info("There is insufficient evidence to support the alternative hypothesis.")
+
             except Exception as e:
                 st.error(f"❌ **Error:** {e}")
+                st.info("Please ensure you have selected the correct data type and group selection.")
+
