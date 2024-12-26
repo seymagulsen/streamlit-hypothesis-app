@@ -6,16 +6,36 @@ import scipy.stats as stats
 import matplotlib.pyplot as plt
 import ast
 
-
 # --- Sidebar for Title and Flowchart ---
 with st.sidebar:
-    st.title("📊 Statistical Hypothesis Testing App")
-    st.write("""
-    This app helps you analyze your data and automatically selects the appropriate statistical test based on the flowchart.
-    """)
-    st.header("📚 Reference Flowchart")
-    st.write("Use the flowchart below to understand how statistical tests are selected based on data type and assumptions.")
+    # TEDU Logo
+    st.image('images/tedu_logo.png', caption='TED University', use_container_width=True)
+    
+    # App Title
+    st.title("📊 ADS 511: Statistical Inference Methods Web Application")
+    st.write("This app helps you analyze your data and automatically selects the appropriate statistical test based on the flowchart.")
+    st.markdown("---")
+
+    # Author Information
+    st.subheader("Developed by:")
+    st.write("👩‍🎓 **Şeyma Gülşen Akkuş**")
+    st.write("🎓 TED University - Applied Data Science")
+    st.markdown("---")
+    
+    # Reference Flowchart
+    st.header("🗺️ Hypothesis Testing Map")
     st.image('images/Flow Chart for Cont. and Disc..png', caption='Statistical Test Decision Tree', use_container_width=True)
+    st.write("""
+    Understand how hypothesis testing decisions are made based on assumptions and data type.
+    """)
+    st.markdown("---")
+    
+    # Quick Links
+    st.subheader("Quick Links:")
+    st.markdown("- [📖 SciPy Documentation](https://scipy.org)")
+    st.markdown("- [💻 Streamlit Documentation](https://streamlit.io)")
+    st.markdown("- [📊 Matplotlib Documentation](https://matplotlib.org)")
+
 
 # --- Step 1: Data Input ---
 st.header("1️⃣ Data Input")
