@@ -4,6 +4,8 @@ import streamlit as st
 import pandas as pd
 import scipy.stats as stats
 import matplotlib.pyplot as plt
+import ast
+
 
 # --- Sidebar for Title and Flowchart ---
 with st.sidebar:
@@ -29,6 +31,7 @@ else:
     manual_data = st.text_area("Enter your data manually (e.g., [2,3,4], [1,2,3]):")
     if manual_data:
         try:
+            # Parse the manual input into separate groups
             data_groups = ast.literal_eval(f'[{manual_data}]')
             if isinstance(data_groups, list) and all(isinstance(group, list) for group in data_groups):
                 data = pd.DataFrame({f'Group_{i+1}': group for i, group in enumerate(data_groups)})
