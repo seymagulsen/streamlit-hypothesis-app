@@ -12,13 +12,13 @@ with st.sidebar:
     st.image('images/tedu_logo.png', caption='TED University', use_container_width=True)
     
     # App Title
-    st.title("📊 ADS 511: Statistical Inference Methods Web Application")
+    st.title("ADS 511: Statistical Inference Methods Web Application")
     st.write("This app helps you analyze your data and automatically selects the appropriate statistical test based on the flowchart.")
     st.markdown("---")
 
     # Author Information
     st.subheader("Developed by:")
-    st.write("👩‍🎓 **Şeyma Gülşen Akkuş**")
+    st.write("**Şeyma Gülşen Akkuş**")
     st.write("TED University - Applied Data Science")
     st.markdown("---")
     
@@ -35,7 +35,7 @@ with st.sidebar:
     st.markdown("- [📊 Matplotlib Documentation](https://matplotlib.org)")
 
 # --- Main Tabs ---
-st.title("📊 ADS 511: Statistical Inference Methods Web Application")
+st.title("ADS 511: Statistical Inference Methods Web Application")
 
 tab1, tab2, tab3, tab4, tab5 = st.tabs([
     "1️⃣ Data Input", 
