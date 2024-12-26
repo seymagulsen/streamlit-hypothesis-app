@@ -5,16 +5,15 @@ import pandas as pd
 import scipy.stats as stats
 import matplotlib.pyplot as plt
 
-# --- Title ---
-st.title("📊 Statistical Hypothesis Testing App")
-st.write("""
-This app helps you analyze your data and automatically selects the appropriate statistical test based on the flowchart.
-""")
-
-# --- Display Reference Flowchart ---
-st.header("📚 Reference Flowchart")
-st.write("Use the flowchart below to understand how statistical tests are selected based on data type and assumptions.")
-st.image('images/Flow Chart for Cont. and Disc..png', caption='Statistical Test Decision Tree', use_container_width=True)
+# --- Sidebar for Title and Flowchart ---
+with st.sidebar:
+    st.title("📊 Statistical Hypothesis Testing App")
+    st.write("""
+    This app helps you analyze your data and automatically selects the appropriate statistical test based on the flowchart.
+    """)
+    st.header("📚 Reference Flowchart")
+    st.write("Use the flowchart below to understand how statistical tests are selected based on data type and assumptions.")
+    st.image('images/Flow Chart for Cont. and Disc..png', caption='Statistical Test Decision Tree', use_container_width=True)
 
 # --- Step 1: Data Input ---
 st.header("1️⃣ Data Input")
@@ -27,14 +26,18 @@ if data_input_method == 'Upload CSV':
         st.write("📊 **Dataset Preview:**")
         st.write(data.head())
 else:
-    manual_data = st.text_area("Enter your data manually (comma-separated values):")
+    manual_data = st.text_area("Enter your data manually (e.g., [2,3,4], [1,2,3]):")
     if manual_data:
         try:
-            data = pd.DataFrame({'ManualData': [float(x.strip()) for x in manual_data.split(',')]})
-            st.write("📊 **Manual Data Preview:**")
-            st.write(data)
-        except ValueError:
-            st.error("❌ Invalid input! Ensure you enter comm numeric values.")
+            data_groups = ast.literal_eval(f'[{manual_data}]')
+            if isinstance(data_groups, list) and all(isinstance(group, list) for group in data_groups):
+                data = pd.DataFrame({f'Group_{i+1}': group for i, group in enumerate(data_groups)})
+                st.write("📊 **Manual Data Preview:**")
+                st.write(data)
+            else:
+                raise ValueError("Invalid input format. Please use square brackets for groups.")
+        except (ValueError, SyntaxError):
+            st.error("❌ Invalid input! Ensure you use the correct format (e.g., [2,3,4], [1,2,3]).")
 
 # --- Step 2: Data Type Selection ---
 if 'data' in locals():
