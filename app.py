@@ -133,27 +133,68 @@ with tab4:
 with tab5:
     if 'data' in locals():
         st.header("5️⃣ Run Test")
+
+        # Users can input additional parameters for the test
+        additional_params = {}
+
+        # Continuous Data Tests
+        if data_type == 'Continuous':
+            st.write("📊 **Continuous Data Summary:**")
+            st.write(data.describe().T)
+            if group_selection == "One Sample":
+                st.write("📝 **One Sample Test Parameters:**")
+                additional_params['population_mean'] = st.number_input("Enter the Population Mean (μ₀) for comparison:",
+                                                                      min_value=-1000.0,
+                                                                      max_value=1000.0,
+                                                                      value=0.0,
+                                                                      step=0.1)
+            elif group_selection == "Two Samples":
+                if paired == "Paired":
+                    st.write("📝 **Paired Test Parameters:**")
+                else:
+                    st.write("📝 **Independent Test Parameters:**")
+            elif group_selection == "More than Two Samples":
+                if paired == "Paired":
+                    st.write("📝 **Repeated Measures ANOVA Parameters:**")
+                else:
+                    st.write("📝 **One-Way ANOVA Parameters:**")
         
+        # Discrete Data Tests
+        if data_type == 'Discrete':
+            st.write("📊 **Discrete Data Summary:**")
+            st.write(data.describe().T)
+            if group_selection == "One Sample":
+                st.write("📝 **One Sample Test Parameters:**")
+                additional_params['success'] = st.number_input("Enter number of successes:", min_value=0, value=1)
+                additional_params['trials'] = st.number_input("Enter number of trials:", min_value=1, value=10)
+            elif group_selection == "Two Samples":
+                st.write("📝 **Two Sample Test Parameters:**")
+                table = [[st.number_input('Cell 1,1'), st.number_input('Cell 1,2')],
+                         [st.number_input('Cell 2,1'), st.number_input('Cell 2,2')]]
+                additional_params['table'] = table
+            elif group_selection == "More than Two Samples":
+                if paired == "Paired":
+                    st.write("📝 **Repeated Measures Test Parameters:**")
+                else:
+                    st.write("📝 **Chi-Square Test Parameters:**"
+                               "Enter the data for each group in the format: [1,2,3], [4,5,6], ...")
+                    additional_params['data'] = st.text_area("Enter the data for each group:")
+
+        # Run Test Button
         if st.button("Run Test"):
             try:
                 ## --- Continuous Data Workflow ---
                 if data_type == 'Continuous':
                     if parametric:  # Parametric Tests
                         if group_selection == "One Sample":
-                            #Ask the user to enter the mean value for one-sample t-test
-                            population_mean = st.number_input("Enter the Population Mean (μ₀) for comparison:",
-                                                            min_value= -1000.0,
-                                                            max_value=1000.0,  
-                                                            value=0.0,
-                                                            step=0.1)
-                                                            
+                            population_mean = additional_params['population_mean']
                             stat, p = stats.ttest_1samp(data.iloc[:, 0], population_mean)
                             # Display the results of the one-sample t-test
                             st.toast("✅ Test Completed Successfully!", icon="🎯")
                             st.write(f"**Population Mean (μ₀):** {population_mean:.4f}")
                             st.write(f"**Test Statistic:** {stat:.4f}")
                             st.write(f"**One-Sample t-test p-value:** {p:.4f}")
-                            
+
                         elif group_selection == "Two Samples":
                             if paired == "Paired":
                                 stat, p = stats.ttest_rel(data.iloc[:, 0], data.iloc[:, 1])
