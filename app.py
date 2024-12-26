@@ -14,7 +14,7 @@ This app helps you analyze your data and automatically selects the appropriate s
 # --- Display Reference Flowchart ---
 st.header("📚 Reference Flowchart")
 st.write("Use the flowchart below to understand how statistical tests are selected based on data type and assumptions.")
-st.image('images/Flow Chart for Cont. and Disc..png', caption='Statistical Test Decision Tree', use_column_width=True)
+st.image('images/Flow Chart for Cont. and Disc..png', caption='Statistical Test Decision Tree', use_container_width=True)
 
 # --- Step 1: Data Input ---
 st.header("1️⃣ Data Input")
