@@ -157,10 +157,10 @@ if st.session_state['active_tab'] == "5️⃣ Run Test":
                 if group_selection == "One Sample":
                     st.write("📝 **One Sample Test Parameters:**")
                     additional_params['population_mean'] = st.number_input("Enter the Population Mean (μ₀) for comparison:",
-                                                                      min_value=-1000.0,
-                                                                      max_value=1000.0,
-                                                                      value=0.0,
-                                                                      step=0.1)
+                                                                        min_value=-1000.0,
+                                                                        max_value=1000.0,
+                                                                        value=0.0,
+                                                                        step=0.1)
                 elif group_selection == "Two Samples":
                     if paired == "Paired":
                         st.write("📝 **Paired Test Parameters:**")
@@ -189,8 +189,7 @@ if st.session_state['active_tab'] == "5️⃣ Run Test":
                     if paired == "Paired":
                         st.write("📝 **Repeated Measures Test Parameters:**")
                     else:
-                        st.write("📝 **Chi-Square Test Parameters:**"
-                               "Enter the data for each group in the format: [1,2,3], [4,5,6], ...")
+                        st.write("📝 **Chi-Square Test Parameters:**")
                         additional_params['data'] = st.text_area("Enter the data for each group:")
 
             # Run Test Button
@@ -221,7 +220,7 @@ if st.session_state['active_tab'] == "5️⃣ Run Test":
                                     st.write(f"**Repeated Measures ANOVA p-value:** {p:.4f}")
                                 else:
                                         stat, p = stats.f_oneway(*[data[col] for col in data.columns])
-                                    st.write(f"**One-Way ANOVA p-value:** {p:.4f}")
+                                        st.write(f"**One-Way ANOVA p-value:** {p:.4f}")
                     
                         else:  # Non-Parametric Tests
                             if group_selection == "One Sample":
