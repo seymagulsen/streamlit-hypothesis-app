@@ -23,6 +23,44 @@ with st.sidebar:
     
     st.markdown("---")
     
+        # Hypothesis Testing Steps
+    with st.expander("📚 Hypothesis Testing Steps"):
+        st.write("### 📝 Define the Hypotheses:")
+        st.write("- Define the null (H₀) and alternative (H₁) hypotheses clearly.")
+        
+        st.write("### ✅ Verify Assumptions:")
+        st.write("""
+        - Check the necessary conditions for the statistical test:
+            - Normality of data distribution.
+            - Independence and identical distribution of samples.
+            - Absence of significant outliers.
+            - Homogeneity of variances (for certain tests).
+        """)
+        
+        st.write("### 🧠 Select the Appropriate Test:")
+        st.write("""
+        - Parametric tests: Used when all assumptions are met.
+        - Non-parametric tests: Used when assumptions are not met.
+        """)
+        
+        st.write("### 📊 Calculate the Test Statistic and p-Value:")
+        st.write("""
+        - Compute the test statistic from the sample data.
+        - Derive the p-value, which measures the probability of observing the data under H₀.
+        """)
+        
+        st.write("### 🎯 Decision Making:")
+        st.write("""
+        - Compare the test statistic to a critical value or the p-value to the significance level (α).
+        - α is the probability of rejecting the null hypothesis when it is true.
+        
+        **Two possible outcomes:**
+        - Reject (H₀): Evidence supports the alternative hypothesis.
+        - Fail to reject (H₀): Insufficient evidence to support the alternative hypothesis.
+        """)
+
+    st.markdown("---")
+
     # Reference Flowchart
     with st.expander("🗺️ Hypothesis Testing Map"):
         st.image('images/Flow Chart for Cont. and Disc..png', caption='Statistical Test Decision Tree', use_container_width=True)
@@ -45,10 +83,7 @@ step = st.selectbox(
     ["1️⃣ Data Input", "2️⃣ Data Type Selection", "3️⃣ Assumption Check", "4️⃣ Group Selection", "5️⃣ Run Test"]
 )
 
-# Progress Bar
-progress = ["1️⃣ Data Input", "2️⃣ Data Type Selection", "3️⃣ Assumption Check", "4️⃣ Group Selection", "5️⃣ Run Test"].index(step) + 1
-st.progress(progress / 5)
-
+# Tab Layout
 tab1, tab2, tab3, tab4, tab5 = st.tabs([
     "📂 Data Input", 
     "📊 Data Type Selection", 
