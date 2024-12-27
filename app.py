@@ -18,8 +18,8 @@ with st.sidebar:
 
     # Author Information
     with st.expander("👩‍🎓 About the Developer"):
-        st.write("Developed by **Şeyma Gülşen Akkuş**")
-        st.write("MSc. in Data Science, TED University")
+        st.write("**Şeyma Gülşen Akkuş**")
+        st.write("MSc. in Applied Data Science, TED University")
     
     st.markdown("---")
     
@@ -146,8 +146,29 @@ with tab3:
                 homogeneous = levene_p > 0.05
                 st.success("✅ Variances are homogeneous." if homogeneous else "❌ Variances are not homogeneous.")
         
-        # Parametric Test Decision
-        parametric = normal and homogeneous
+        # Independence and Identical Distribution
+        with st.expander("🔗 Independence and Identical Distribution of Samples"):
+            st.write("""
+            - Samples should be collected independently.
+            - Each observation should not influence another observation.
+            - Samples should follow the same distribution.
+            """)
+            independence_check = st.checkbox("✅ Check if samples are independent and identically distributed")
+            st.success("✅ Samples are independent and identically distributed." if independence_check else "❌ Samples might not be independent or identically distributed.")
+        
+        # Outlier Detection (Using Z-Score Method)
+        with st.expander("⚠️ Absence of Significant Outliers"):
+            st.write("""
+            - Outliers can significantly impact statistical test results.
+            - Outliers are detected using the Z-score method.
+            """)
+            z_scores = (data - data.mean()) / data.std()
+            outliers = (z_scores.abs() > 3).sum().sum()
+            st.write(f"**Number of Outliers Detected:** {outliers}")
+            st.success("✅ No significant outliers detected." if outliers == 0 else f"⚠️ {outliers} significant outlier(s) detected in the dataset.")
+        
+        # Final Parametric Test Decision
+        parametric = normal and homogeneous and independence_check and outliers == 0
         
         st.markdown("---")
         if parametric:
