@@ -4,6 +4,8 @@ import streamlit as st
 import pandas as pd
 import scipy.stats as stats
 import matplotlib.pyplot as plt
+from statsmodels.stats.contingency_tables import mcnemar, cochrans_q
+from scipy.stats import fisher_exact, chi2_contingency
 import ast
 import sys
 import os
@@ -182,74 +184,81 @@ if selected_tab == "🔍 Assumption Check":
     if not st.session_state['step_completed']['Data Type']:
         st.warning("⚠️ Please complete 'Data Type Selection' first.")
     else:
-        st.write("Performing assumption checks...")
-
-        # Initialize assumption flags
-        normal = False
-        homogeneous = False
-        independence_check = False
-        outliers = 0
-
-        # Normality Test (Shapiro-Wilk Test)
-        with st.expander("🔍 Normality Test (Shapiro-Wilk)"):
-            try:
-                shapiro_p = stats.shapiro(st.session_state['data'].iloc[:, 0])[1]
-                st.write(f"**Shapiro-Wilk p-value:** {shapiro_p:.4f}")
-                normal = shapiro_p > 0.05
-                st.success("✅ Data is normally distributed." if normal else "❌ Data is not normally distributed.")
-            except Exception as e:
-                st.error(f"Normality Test Error: {e}")
-
-        # Homogeneity of Variances (Levene's Test)
-        with st.expander("🔍 Homogeneity of Variances (Levene Test)"):
-            try:
-                if st.session_state['data'].shape[1] > 1:
-                    levene_p = stats.levene(*[st.session_state['data'][col] for col in st.session_state['data'].columns])[1]
-                    st.write(f"**Levene p-value:** {levene_p:.4f}")
-                    homogeneous = levene_p > 0.05
-                    st.success("✅ Variances are homogeneous." if homogeneous else "❌ Variances are not homogeneous.")
-                else:
-                    st.info("ℹ️ At least two groups are needed to test homogeneity of variances.")
-                    homogeneous = True  # Assume True if only one group is present
-            except Exception as e:
-                st.error(f"Homogeneity Test Error: {e}")
-
-        # Independence Check
-        with st.expander("🔗 Independence and Identically Distributed Samples"):
-            st.write("""
-            - Samples should be collected independently.
-            - Each observation should not influence another observation.
-            - Samples should follow the same distribution.
-            """)
-            independence_check = st.checkbox("✅ Check if samples are independent and identically distributed")
-            st.success("✅ Samples are independent and identically distributed." if independence_check else "❌ Samples might not be independent or identically distributed.")
-
-        # Outlier Detection (Z-Score Method)
-        with st.expander("⚠️ Absence of Significant Outliers"):
-            try:
-                z_scores = (st.session_state['data'] - st.session_state['data'].mean()) / st.session_state['data'].std()
-                outliers = (z_scores.abs() > 3).sum().sum()
-                st.write(f"**Number of Outliers Detected:** {outliers}")
-                st.success("✅ No significant outliers detected." if outliers == 0 else f"⚠️ {outliers} significant outlier(s) detected.")
-            except Exception as e:
-                st.error(f"Outlier Detection Error: {e}")
-
-        # Final Decision on Parametric/Non-Parametric Tests
-        st.markdown("---")
-        st.session_state['parametric'] = normal and homogeneous and independence_check and outliers == 0
-        
-        if st.session_state['parametric']:
-            st.success("✅ **All assumptions hold. Proceed with Parametric Tests.**")
-        else:
-            st.warning("❌ **Assumptions violated. Proceed with Non-Parametric Tests.**")
-
-        # Proceed to the Next Step
-        if st.button("Next: Group Selection"):
+        if st.session_state['data_type'] == "Discrete":
+            st.info("ℹ️ No assumption checks are required for Discrete data.")
             st.session_state['step_completed']['Assumption Check'] = True
             st.session_state['current_tab'] = '🧑‍🤝‍🧑 Group Selection'
             st.query_params["tab"] = "🧑‍🤝‍🧑 Group Selection"
-            st.write("Assumption Check Completed! Proceed to the next step.")
             st.rerun()
+        else:
+            st.write("Performing assumption checks...")
+
+            # Initialize assumption flags
+            normal = False
+            homogeneous = False
+            independence_check = False
+            outliers = 0
+
+            # Normality Test (Shapiro-Wilk Test)
+            with st.expander("🔍 Normality Test (Shapiro-Wilk)"):
+                try:
+                    shapiro_p = stats.shapiro(st.session_state['data'].iloc[:, 0])[1]
+                    st.write(f"**Shapiro-Wilk p-value:** {shapiro_p:.4f}")
+                    normal = shapiro_p > 0.05
+                    st.success("✅ Data is normally distributed." if normal else "❌ Data is not normally distributed.")
+                except Exception as e:
+                    st.error(f"Normality Test Error: {e}")
+
+            # Homogeneity of Variances (Levene's Test)
+            with st.expander("🔍 Homogeneity of Variances (Levene Test)"):
+                try:
+                    if st.session_state['data'].shape[1] > 1:
+                        levene_p = stats.levene(*[st.session_state['data'][col] for col in st.session_state['data'].columns])[1]
+                        st.write(f"**Levene p-value:** {levene_p:.4f}")
+                        homogeneous = levene_p > 0.05
+                        st.success("✅ Variances are homogeneous." if homogeneous else "❌ Variances are not homogeneous.")
+                    else:
+                        st.info("ℹ️ At least two groups are needed to test homogeneity of variances.")
+                        homogeneous = True  # Assume True if only one group is present
+                except Exception as e:
+                    st.error(f"Homogeneity Test Error: {e}")
+
+            # Independence Check
+            with st.expander("🔗 Independence and Identically Distributed Samples"):
+                st.write("""
+                - Samples should be collected independently.
+                - Each observation should not influence another observation.
+                - Samples should follow the same distribution.
+                """)
+                independence_check = st.checkbox("✅ Check if samples are independent and identically distributed")
+                st.success("✅ Samples are independent and identically distributed." if independence_check else "❌ Samples might not be independent or identically distributed.")
+
+            # Outlier Detection (Z-Score Method)
+            with st.expander("⚠️ Absence of Significant Outliers"):
+                try:
+                    z_scores = (st.session_state['data'] - st.session_state['data'].mean()) / st.session_state['data'].std()
+                    outliers = (z_scores.abs() > 3).sum().sum()
+                    st.write(f"**Number of Outliers Detected:** {outliers}")
+                    st.success("✅ No significant outliers detected." if outliers == 0 else f"⚠️ {outliers} significant outlier(s) detected.")
+                except Exception as e:
+                    st.error(f"Outlier Detection Error: {e}")
+
+            # Final Decision on Parametric/Non-Parametric Tests
+            st.markdown("---")
+            st.session_state['parametric'] = normal and homogeneous and independence_check and outliers == 0
+        
+            if st.session_state['parametric']:
+                st.success("✅ **All assumptions hold. Proceed with Parametric Tests.**")
+            else:
+                st.warning("❌ **Assumptions violated. Proceed with Non-Parametric Tests.**")
+
+            # Proceed to the Next Step
+            if st.button("Next: Group Selection"):
+                st.session_state['step_completed']['Assumption Check'] = True
+                st.session_state['current_tab'] = '🧑‍🤝‍🧑 Group Selection'
+                st.query_params["tab"] = "🧑‍🤝‍🧑 Group Selection"
+                st.write("Assumption Check Completed! Proceed to the next step.")
+                st.rerun()
 
 # --- Tab 4: Group Selection ---
 if selected_tab == "🧑‍🤝‍🧑 Group Selection":
@@ -369,14 +378,14 @@ if selected_tab == "🚀 Run Test":
                 paired = st.radio("Are the groups Paired or Unpaired?", ("Paired", "Unpaired"))
         
                 if paired == "Paired":
-                    st.write("🧠 **Paired Test Selected:** McNemar Test")
+                    st.write("**Paired Test Selected:** McNemar Test")
                     table = [
                         [st.number_input('Cell 1,1'), st.number_input('Cell 1,2')],
                         [st.number_input('Cell 2,1'), st.number_input('Cell 2,2')]
                     ]
                     additional_params['table'] = table
                 else:
-                    st.write("🧠 **Unpaired Test Selected:** Fisher's Exact Test")
+                    st.write("**Unpaired Test Selected:** Fisher's Exact Test")
                     table = [
                         [st.number_input('Cell 1,1'), st.number_input('Cell 1,2')],
                         [st.number_input('Cell 2,1'), st.number_input('Cell 2,2')]
@@ -387,7 +396,7 @@ if selected_tab == "🚀 Run Test":
                 paired = st.radio("Are the groups Paired or Unpaired?", ("Paired", "Unpaired"))
         
                 if paired == "Paired":
-                    st.write("🧠 **Paired Test Selected:** Cochran's Q Test")
+                    st.write("**Paired Test Selected:** Cochran's Q Test")
                     rows = st.number_input("Enter the number of paired groups (e.g., groups):", min_value=2, value=3)
                     cols = st.number_input("Enter the number of samples per group:", min_value=1, value=10)
             
@@ -402,7 +411,7 @@ if selected_tab == "🚀 Run Test":
                     additional_params['paired_data'] = data
 
                 else:
-                    st.write("🧠 **Unpaired Test Selected:** Chi-Square Test")
+                    st.write("**Unpaired Test Selected:** Chi-Square Test")
                     rows = st.number_input("Enter the number of rows (e.g., groups):", min_value=2, value=3)
                     cols = st.number_input("Enter the number of columns (e.g., categories):", min_value=2, value=3)
             
