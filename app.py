@@ -18,25 +18,34 @@ import scikit_posthocs as sp
 
 
 # --- Session State Initialization ---
-if 'step_completed' not in st.session_state:
-    st.session_state['step_completed'] = {
+default_session_state = {
+    'step_completed': {
         'Data Input': False,
         'Data Type': False,
         'Assumption Check': False,
         'Group Selection': False,
         'Run Test': False
-    }
+    },
+    'data': None,
+    'data_type': None,
+    'group_selection': None,
+    'parametric': False,
+    'paired': None,
+    'current_tab': '📂 Data Input',
+    'binomial_test_ran': False,
+    'binomial_p_value': None,
+    'mcnemar_test_ran': False,
+    'mcnemar_p_value': None,
+    'fisher_test_ran': False,
+    'fisher_p_value': None,
+    'chi_square_test_ran': False,
+    'chi_square_p_value': None
+}
 
-if 'data' not in st.session_state:
-    st.session_state['data'] = None
-if 'data_type' not in st.session_state:
-    st.session_state['data_type'] = None
-if 'group_selection' not in st.session_state:
-    st.session_state['group_selection'] = None
-if 'parametric' not in st.session_state:
-    st.session_state['parametric'] = False
-if 'paired' not in st.session_state:
-    st.session_state['paired'] = None
+for key, value in default_session_state.items():
+    if key not in st.session_state:
+        st.session_state[key] = value
+        
 if 'current_tab' not in st.session_state:
     st.session_state['current_tab'] = st.query_params.get("tab", "📂 Data Input")
 
