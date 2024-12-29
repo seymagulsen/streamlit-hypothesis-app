@@ -414,7 +414,7 @@ if selected_tab == "🚀 Run Test":
                                     # Style the results manually for highlighting
                                     def highlight_significant(val):
                                         return 'background-color: lightblue' if val < 0.05 else ''
-                                    posthoc_styled = posthoc_df.style.format("{:.4f}").applymap(highlight_significant)
+                                    posthoc_styled = posthoc_df.style.format("{:.6f}").applymap(highlight_significant)
                                     st.success("✅ Significant Differences Found! Performing Pairwise T-tests...")  
                                     st.write("🔍 **Pairwise T-Test Results (Bonferroni Corrected):**")
                                     st.write(posthoc_styled.to_html(), unsafe_allow_html=True) 
@@ -432,7 +432,7 @@ if selected_tab == "🚀 Run Test":
                                     # Style the results manually for highlighting
                                     def highlight_significant(val):
                                         return 'background-color: lightblue' if val < 0.05 else ''
-                                    posthoc_styled = posthoc_df.style.format("{:.4f}").applymap(highlight_significant)
+                                    posthoc_styled = posthoc_df.style.format("{:.6f}").applymap(highlight_significant)
                                     st.success("✅ Significant Differences Found! Performing Pairwise T-tests...")  
                                     st.write("🔍 **Pairwise T-Test Results (Bonferroni Corrected):**")
                                     st.write(posthoc_styled.to_html(), unsafe_allow_html=True)  
@@ -467,7 +467,7 @@ if selected_tab == "🚀 Run Test":
                                     # Style the results manually for highlighting
                                     def highlight_significant(val):
                                         return 'background-color: lightblue' if val < 0.05 else ''
-                                    posthoc_styled = posthoc_df.style.format("{:.4f}").applymap(highlight_significant)
+                                    posthoc_styled = posthoc_df.style.format("{:.6f}").applymap(highlight_significant)
                                     st.success("✅ Significant Differences Found! Performing Pairwise T-tests...")  
                                     st.write("🔍 **Pairwise T-Test Results (Bonferroni Corrected):**")
                                     st.write(posthoc_styled.to_html(), unsafe_allow_html=True) 
@@ -483,7 +483,7 @@ if selected_tab == "🚀 Run Test":
                                     # Style the results manually for highlighting
                                     def highlight_significant(val):
                                         return 'background-color: lightblue' if val < 0.05 else ''
-                                    posthoc_styled = posthoc_df.style.format("{:.4f}").applymap(highlight_significant)
+                                    posthoc_styled = posthoc_df.style.format("{:.6f}").applymap(highlight_significant)
                                     st.success("✅ Significant Differences Found! Performing Pairwise T-tests...")  
                                     st.write("🔍 **Pairwise T-Test Results (Bonferroni Corrected):**")
                                     st.write(posthoc_styled.to_html(), unsafe_allow_html=True) 
