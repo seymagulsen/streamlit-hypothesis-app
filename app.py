@@ -409,7 +409,7 @@ if selected_tab == "🚀 Run Test":
                          for i in range(additional_params['paired_rows'])
                          ]
                 else:
-                    st.write("Kruskal-Wallis H Test Parameters:")
+                    st.write("Chi-Square Test Parameters:")
                     st.write("Enter values for a contingency table:")
                     additional_params['chi2_rows'] = st.number_input("Number of Rows (Groups)", min_value=2, value=2)
                     additional_params['chi2_cols'] = st.number_input("Number of Columns (Samples)", min_value=1, value=2)
@@ -603,7 +603,6 @@ if selected_tab == "🚀 Run Test":
   
                         else:
                             st.subheader("🧪 **Unpaired Test: Chi-Square Test**")
-                            st.write("Enter values for a contingency table:")
 
                             try:
                                 import numpy as np
