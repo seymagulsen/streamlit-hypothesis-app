@@ -492,10 +492,10 @@ if selected_tab == "🚀 Run Test":
                         if st.button("Run Binomial Test"):
                             try:
                                 result = stats.binomtest(success, trials, alternative=alternative)
-                                p_value = result.pvalue
+                                p = result.pvalue
                                 st.write(f"**Number of Successes:** {success}")
                                 st.write(f"**Number of Trials:** {trials}")
-                                st.write(f"**Binomial Test p-value:** {p_value:.4f}")
+                                st.write(f"**Binomial Test p-value:** {p:.4f}")
                             except Exception as e:
                                 st.error(f"❌ **Error:** {e}")
                                 st.info("Please ensure you have entered valid values for the binomial test.")
@@ -515,9 +515,9 @@ if selected_tab == "🚀 Run Test":
                                     table = [[yes_yes, yes_no], [no_yes, no_no]]
                                     result = mcnemar(table, exact=True)
                                     stat = result.statistic
-                                    p_value = result.pvalue
+                                    p = result.pvalue
                                     st.write(f"**McNemar Test Statistic:** {stat:.4f}")
-                                    st.write(f"**McNemar Test p-value:** {p_value:.4f}")
+                                    st.write(f"**McNemar Test p-value:** {p:.4f}")
                                 except Exception as e:
                                     st.error(f"❌ **Error:** {e}")
                                     st.info("Please ensure you have entered valid values for the contingency table.")
@@ -532,9 +532,9 @@ if selected_tab == "🚀 Run Test":
                             if st.button("Run Fisher's Exact Test"):
                                 try:
                                     table = [[group1_yes, group1_no], [group2_yes, group2_no]]
-                                    odds_ratio, p_value = fisher_exact(table)
+                                    odds_ratio, p = fisher_exact(table)
                                     st.write(f"**Odds Ratio:** {odds_ratio:.4f}")
-                                    st.write(f"**Fisher's Exact Test p-value:** {p_value:.4f}")
+                                    st.write(f"**Fisher's Exact Test p-value:** {p:.4f}")
                                 except Exception as e:
                                     st.error(f"❌ **Error:** {e}")
                                     st.info("Please ensure you have entered valid values for the contingency table.")
@@ -560,9 +560,9 @@ if selected_tab == "🚀 Run Test":
                                     data = pd.DataFrame(data).T
                                     result = cochrans_q(data)
                                     stat = result.statistic
-                                    p_value = result.pvalue
+                                    p = result.pvalue
                                     st.write(f"**Cochran's Q Test Statistic:** {stat:.4f}")
-                                    st.write(f"**p-value:** {p_value:.4f}")
+                                    st.write(f"**p-value:** {p:.4f}")
                                 except Exception as e:
                                     st.error(f"❌ **Error:** {e}")
                                     st.info("Please ensure you have entered valid values for the contingency table.")
@@ -583,9 +583,9 @@ if selected_tab == "🚀 Run Test":
                             if st.button("Run Chi-Square Test"):
                                 try:
                                     table = np.array(table)
-                                    stat, p_value, dof, expected = chi2_contingency(table)
+                                    stat, p, dof, expected = chi2_contingency(table)
                                     st.write(f"**Chi-Square Test Statistic:** {stat:.4f}")
-                                    st.write(f"**p-value:** {p_value:.4f}")
+                                    st.write(f"**p-value:** {p:.4f}")
                                     st.write(f"**Degrees of Freedom:** {dof}")
                                     st.write("**Expected Frequencies:**")
                                     st.write(pd.DataFrame(expected))
