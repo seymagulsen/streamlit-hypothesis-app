@@ -41,6 +41,51 @@ if 'paired' not in st.session_state:
 if 'current_tab' not in st.session_state:
     st.session_state['current_tab'] = st.query_params.get("tab", "📂 Data Input")
 
+# --- Session State Initialization for Test Parameters ---
+
+# Binomial Test
+if 'success' not in st.session_state:
+    st.session_state['success'] = 1
+if 'trials' not in st.session_state:
+    st.session_state['trials'] = 1
+
+# McNemar Test
+if 'yes_yes' not in st.session_state:
+    st.session_state['yes_yes'] = 0
+if 'yes_no' not in st.session_state:
+    st.session_state['yes_no'] = 0
+if 'no_yes' not in st.session_state:
+    st.session_state['no_yes'] = 0
+if 'no_no' not in st.session_state:
+    st.session_state['no_no'] = 0
+
+# Fisher's Exact Test
+if 'group1_yes' not in st.session_state:
+    st.session_state['group1_yes'] = 0
+if 'group1_no' not in st.session_state:
+    st.session_state['group1_no'] = 0
+if 'group2_yes' not in st.session_state:
+    st.session_state['group2_yes'] = 0
+if 'group2_no' not in st.session_state:
+    st.session_state['group2_no'] = 0
+
+# Cochran's Q Test
+if 'paired_rows' not in st.session_state:
+    st.session_state['paired_rows'] = 2
+if 'paired_cols' not in st.session_state:
+    st.session_state['paired_cols'] = 2
+if 'paired_data' not in st.session_state:
+    st.session_state['paired_data'] = [[1]*2 for _ in range(2)]
+
+# Chi-Square Test
+if 'chi_rows' not in st.session_state:
+    st.session_state['chi_rows'] = 2
+if 'chi_cols' not in st.session_state:
+    st.session_state['chi_cols'] = 2
+if 'chi_table' not in st.session_state:
+    st.session_state['chi_table'] = [[0]*2 for _ in range(2)]
+
+
 # --- Sidebar for Title and Flowchart ---
 with st.sidebar:
     # TEDU Logo
