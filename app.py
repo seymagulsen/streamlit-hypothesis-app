@@ -144,7 +144,7 @@ with tab1:
     if st.session_state['data'] is not None:
         if st.button("Next: Data Type Selection"):
             st.session_state['step_completed']['Data Input'] = True
-            st.experimental_rerun()
+            st.rerun()
 
 # --- Tab 2: Data Type Selection ---
 with tab2:
