@@ -189,6 +189,13 @@ with tab4:
 with tab5:
     if 'data' in locals():
         st.header("5️⃣ Run Test")
+        alternative = st.selectbox(
+                    "Choose Hypothesis Type:",
+                    ("two-sided", "greater", "less"),
+                    index=0,
+                    help="Choose 'two-sided' for general differences, 'greater' if mean/median is expected to be higher, 'less' if lower."
+                    )
+        
 
         # Users can input additional parameters for the test
         additional_params = {}
@@ -244,7 +251,11 @@ with tab5:
                     if parametric:  # Parametric Tests
                         if group_selection == "One Sample":
                             population_mean = additional_params['population_mean']
-                            stat, p = stats.ttest_1samp(data.iloc[:, 0], population_mean)
+                            stat, p = stats.ttest_1samp(data.iloc[:, 0], population_mean, alternative=alternative)
+                            if alternative == "greater" and stat < 0:
+                                p /= 2
+                            elif alternative == "less" and stat > 0:
+                                p /= 2
                             # Display the results of the one-sample t-test
                             st.toast("✅ Test Completed Successfully!", icon="🎯")
                             st.write(f"**Population Mean (μ₀):** {population_mean:.4f}")
@@ -253,30 +264,92 @@ with tab5:
 
                         elif group_selection == "Two Samples":
                             if paired == "Paired":
-                                stat, p = stats.ttest_rel(data.iloc[:, 0], data.iloc[:, 1])
-                                st.write(f"**Paired t-test p-value:** {p:.4f}")
+                                stat, p = stats.ttest_rel(data.iloc[:, 0], data.iloc[:, 1], alternative=alternative)
+                                if alternative == "greater" and stat < 0:
+                                    p /= 2
+                                elif alternative == "less" and stat > 0:
+                                    p /= 2
+                                st.write(f"**Paired t-test Statistic:** {stat:.4f}, **p-value:** {p:.4f}")
                             else:
-                                stat, p = stats.ttest_ind(data.iloc[:, 0], data.iloc[:, 1])
-                                st.write(f"**Independent t-test p-value:** {p:.4f}")
+                                stat, p = stats.ttest_ind(data.iloc[:, 0], data.iloc[:, 1],alternative=alternative)
+                                if alternative == "greater" and stat < 0:
+                                    p /= 2  
+                                elif alternative == "less" and stat > 0:
+                                    p /= 2
+                                st.write(f"**Independent t-test Statistic:** {stat:.4f}, **p-value:** {p:.4f}")
                         elif group_selection == "More than Two Samples":
                             if paired == "Paired":
+                                # Repeated Measures ANOVA
                                 stat, p = stats.f_oneway(*[data[col] for col in data.columns])
-                                st.write(f"**Repeated Measures ANOVA p-value:** {p:.4f}")
-                            else:
+                                st.write(f"**Repeated Measures ANOVA results:**")
+                                st.write(f"**F-Statistic:** {stat:.4f}, **p-value:** {p:.4f}")
+
+                                # Post-hoc Pairwise T-Tests
+                                if p < 0.05:
+                                    import scikit_posthocs as sp
+                                    st.success("✅ Significant Differences Found! Performing Pairwise T-tests...")
+            
+                                    # Pairwise T-Tests with Bonferroni Correction
+                                    posthoc_df = sp.posthoc_ttest(*[data[col] for col in data.columns], 
+                                                                  equal_var=True,
+                                                                  p_adjust='bonferroni')
+                                    
+                                    # Add group names for clarity
+                                    group_names = list(data.columns)
+                                    posthoc_df.index = group_names
+                                    posthoc_df.columns = group_names
+
+                                    # Display the pairwise t-test results
+                                    st.write("🔍 **Pairwise T-Test Results (Bonferroni Corrected):**")
+                                    st.write(posthoc_df.style.map(
+                                        lambda x: 'background-color: lightblue' if x < 0.05 else 'background-color: white '
+                                    ))
+                                else:
+                                    st.warning("❌ No significant difference detected across groups.")
+                                    
+                            else: 
+                                # One-Way ANOVA
                                 stat, p = stats.f_oneway(*[data[col] for col in data.columns])
-                                st.write(f"**One-Way ANOVA p-value:** {p:.4f}")
+                                st.write(f"**One-Way ANOVA results:**")
+                                st.write(f"**F-Statistic:** {stat:.4f}, **p-value:** {p:.4f}")
+
+                                # Post-hoc Pairwise T-Tests
+                                if p < 0.05:
+                                    import scikit_posthocs as sp
+                                    st.success("✅ Significant Differences Found! Performing Pairwise T-tests...")
+            
+                                    # Pairwise T-Tests with Bonferroni Correction
+                                    posthoc_df = sp.posthoc_ttest(*[data[col] for col in data.columns], 
+                                                                  equal_var=True,
+                                                                  p_adjust='bonferroni')
+                                    
+                                    # Add group names for clarity
+                                    group_names = list(data.columns)
+                                    posthoc_df.index = group_names
+                                    posthoc_df.columns = group_names
+
+                                    # Display the pairwise t-test results
+                                    st.write("🔍 **Pairwise T-Test Results (Bonferroni Corrected):**")
+                                    st.write(posthoc_df.style.map(
+                                        lambda x: 'background-color: lightblue' if x < 0.05 else 'background-color: white '
+                                    ))
+                                else:
+                                    st.warning("❌ No significant difference detected across groups.")                                
                     
                     else:  # Non-Parametric Tests
                         if group_selection == "One Sample":
-                            stat, p = stats.wilcoxon(data.iloc[:, 0])
-                            st.write(f"**One-Sample Wilcoxon Signed-Rank Test p-value:** {p:.4f}")
+                            population_mean = additional_params['population_mean']
+                            diff = data.iloc[:, 0] - population_mean
+                            stat, p = stats.wilcoxon(diff,alternative=alternative)
+                            st.write(f"**One-Sample Wilcoxon Signed-Rank Test Statistic:** {stat:.4f}, **p-value**: {p:.4f}")
+                            
                         elif group_selection == "Two Samples":
                             if paired == "Paired":
-                                stat, p = stats.wilcoxon(data.iloc[:, 0], data.iloc[:, 1])
-                                st.write(f"**Wilcoxon Signed-Rank Test p-value:** {p:.4f}")
+                                stat, p = stats.wilcoxon(data.iloc[:, 0], data.iloc[:, 1], alternative=alternative)
+                                st.write(f"**Wilcoxon Signed-Rank Test Statistic:** {stat:.4f}, **p-value:** {p:.4f}")
                             else:
-                                stat, p = stats.mannwhitneyu(data.iloc[:, 0], data.iloc[:, 1])
-                                st.write(f"**Mann-Whitney U Test p-value:** {p:.4f}")
+                                stat, p = stats.mannwhitneyu(data.iloc[:, 0], data.iloc[:, 1], alternative=alternative)
+                                st.write(f"**Mann-Whitney U Test Statistic:** {stat:.4f}, **p-value:** {p:.4f}")
                         elif group_selection == "More than Two Samples":
                             if paired == "Paired":
                                 stat, p = stats.friedmanchisquare(*[data[col] for col in data.columns])
