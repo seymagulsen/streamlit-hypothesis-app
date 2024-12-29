@@ -411,12 +411,13 @@ if selected_tab == "🚀 Run Test":
                                     long_data = pd.melt(data.reset_index(), id_vars='index', var_name='group', value_name='value')
                                     long_data = long_data.dropna()  # Remove NaN values
                                     posthoc_df = sp.posthoc_ttest(long_data, val_col='value',group_col='group', p_adjust='bonferroni')
-                                    posthoc_styled = posthoc_df.style.format("{:.4f}").applymap(
-                                        lambda x: "background-color: lightblue" if x < 0.05 else ""
-                                    )
+                                    # Style the results manually for highlighting
+                                    def highlight_significant(val):
+                                        return 'background-color: lightblue' if val < 0.05 else ''
+                                    posthoc_styled = posthoc_df.style.format("{:.4f}").applymap(highlight_significant)
                                     st.success("✅ Significant Differences Found! Performing Pairwise T-tests...")  
                                     st.write("🔍 **Pairwise T-Test Results (Bonferroni Corrected):**")
-                                    st.write(posthoc_df) 
+                                    st.write(posthoc_styled.to_html(), unsafe_allow_html=True) 
 
                             else:
                                 # One-Way ANOVA
@@ -425,16 +426,16 @@ if selected_tab == "🚀 Run Test":
                                 st.write(f"**One-Way ANOVA F-Statistic:** {stat:.4f}, **p-value:** {p:.4f}")
                                 if p < 0.05:
                                     import scikit_posthocs as sp
-                                    import scikit_posthocs as sp
                                     long_data = pd.melt(data.reset_index(), id_vars='index', var_name='group', value_name='value')
                                     long_data = long_data.dropna()  # Remove NaN values
                                     posthoc_df = sp.posthoc_ttest(long_data, val_col='value',group_col='group', p_adjust='bonferroni')
-                                    posthoc_styled = posthoc_df.style.format("{:.4f}").applymap(
-                                        lambda x: "background-color: lightblue" if x < 0.05 else ""
-                                    )
+                                    # Style the results manually for highlighting
+                                    def highlight_significant(val):
+                                        return 'background-color: lightblue' if val < 0.05 else ''
+                                    posthoc_styled = posthoc_df.style.format("{:.4f}").applymap(highlight_significant)
                                     st.success("✅ Significant Differences Found! Performing Pairwise T-tests...")  
                                     st.write("🔍 **Pairwise T-Test Results (Bonferroni Corrected):**")
-                                    st.write(posthoc_df) 
+                                    st.write(posthoc_styled.to_html(), unsafe_allow_html=True)  
 
                     else:
                         # Non-Parametric Tests
@@ -463,12 +464,13 @@ if selected_tab == "🚀 Run Test":
                                     long_data = pd.melt(data.reset_index(), id_vars='index', var_name='group', value_name='value')
                                     long_data = long_data.dropna()  # Remove NaN values
                                     posthoc_df = sp.posthoc_ttest(long_data, val_col='value',group_col='group', p_adjust='bonferroni')
-                                    posthoc_styled = posthoc_df.style.format("{:.4f}").applymap(
-                                        lambda x: "background-color: lightblue" if x < 0.05 else ""
-                                    )
+                                    # Style the results manually for highlighting
+                                    def highlight_significant(val):
+                                        return 'background-color: lightblue' if val < 0.05 else ''
+                                    posthoc_styled = posthoc_df.style.format("{:.4f}").applymap(highlight_significant)
                                     st.success("✅ Significant Differences Found! Performing Pairwise T-tests...")  
                                     st.write("🔍 **Pairwise T-Test Results (Bonferroni Corrected):**")
-                                    st.write(posthoc_df) 
+                                    st.write(posthoc_styled.to_html(), unsafe_allow_html=True) 
                             else:
                                 st.subheader("🧪 **Non-Parametric One-Way Test: Kruskal-Wallis H Test**")
                                 stat, p = stats.kruskal(*[data[col] for col in data.columns])
@@ -478,12 +480,13 @@ if selected_tab == "🚀 Run Test":
                                     long_data = pd.melt(data.reset_index(), id_vars='index', var_name='group', value_name='value')
                                     long_data = long_data.dropna()  # Remove NaN values
                                     posthoc_df = sp.posthoc_ttest(long_data, val_col='value',group_col='group', p_adjust='bonferroni')
-                                    posthoc_styled = posthoc_df.style.format("{:.4f}").applymap(
-                                        lambda x: "background-color: lightblue" if x < 0.05 else ""
-                                    )
+                                    # Style the results manually for highlighting
+                                    def highlight_significant(val):
+                                        return 'background-color: lightblue' if val < 0.05 else ''
+                                    posthoc_styled = posthoc_df.style.format("{:.4f}").applymap(highlight_significant)
                                     st.success("✅ Significant Differences Found! Performing Pairwise T-tests...")  
                                     st.write("🔍 **Pairwise T-Test Results (Bonferroni Corrected):**")
-                                    st.write(posthoc_df) 
+                                    st.write(posthoc_styled.to_html(), unsafe_allow_html=True) 
 
                 ## --- Discrete Data Workflow ---
                 if data_type == 'Discrete':
