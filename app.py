@@ -363,15 +363,58 @@ if selected_tab == "🚀 Run Test":
                 )
                 additional_params['trials'] = st.number_input(
                     "Enter number of trials:",
-                    min_value=1, value=10
+                    min_value=1, value=1
                 )
             elif group_selection == "Two Samples":
-                st.write("🧠 Enter contingency table values:")
-                table = [
-                    [st.number_input('Cell 1,1'), st.number_input('Cell 1,2')],
-                    [st.number_input('Cell 2,1'), st.number_input('Cell 2,2')]
-                ]
-                additional_params['table'] = table
+                paired = st.radio("Are the groups Paired or Unpaired?", ("Paired", "Unpaired"))
+        
+                if paired == "Paired":
+                    st.write("🧠 **Paired Test Selected:** McNemar Test")
+                    table = [
+                        [st.number_input('Cell 1,1'), st.number_input('Cell 1,2')],
+                        [st.number_input('Cell 2,1'), st.number_input('Cell 2,2')]
+                    ]
+                    additional_params['table'] = table
+                else:
+                    st.write("🧠 **Unpaired Test Selected:** Fisher's Exact Test")
+                    table = [
+                        [st.number_input('Cell 1,1'), st.number_input('Cell 1,2')],
+                        [st.number_input('Cell 2,1'), st.number_input('Cell 2,2')]
+                    ]
+                    additional_params['table'] = table
+
+            elif group_selection == "More than Two Samples":
+                paired = st.radio("Are the groups Paired or Unpaired?", ("Paired", "Unpaired"))
+        
+                if paired == "Paired":
+                    st.write("🧠 **Paired Test Selected:** Cochran's Q Test")
+                    rows = st.number_input("Enter the number of paired groups (e.g., groups):", min_value=2, value=3)
+                    cols = st.number_input("Enter the number of samples per group:", min_value=1, value=10)
+            
+                    data = []
+                    for i in range(rows):
+                        group_data = []
+                        for j in range(cols):
+                            cell_value = st.number_input(f"Group {i+1}, Sample {j+1}", min_value=0, max_value=1, value=1)
+                            group_data.append(cell_value)
+                        data.append(group_data)
+            
+                    additional_params['paired_data'] = data
+
+                else:
+                    st.write("🧠 **Unpaired Test Selected:** Chi-Square Test")
+                    rows = st.number_input("Enter the number of rows (e.g., groups):", min_value=2, value=3)
+                    cols = st.number_input("Enter the number of columns (e.g., categories):", min_value=2, value=3)
+            
+                    table = []
+                    for i in range(rows):
+                        row = []
+                        for j in range(cols):
+                            cell_value = st.number_input(f"Enter value for Cell ({i+1},{j+1}):", min_value=0, value=0)
+                            row.append(cell_value)
+                        table.append(row)
+            
+                    additional_params['table'] = table
 
         # Run Test Button
         if st.button("Run Test"):
@@ -493,15 +536,43 @@ if selected_tab == "🚀 Run Test":
                     if group_selection == "One Sample":
                         success = additional_params['success']
                         trials = additional_params['trials']
-                        p = stats.binom_test(success, trials, alternative=alternative)
+                        result = stats.binomtest(success, trials, alternative=alternative)
+                        p = result.pvalue
                         st.write(f"**Binomial Test p-value:** {p:.4f}")
-                    elif group_selection == "Two Samples":
-                        table = additional_params['table']
-                        stat, p = stats.fisher_exact(table)
-                        st.write(f"**Fisher's Exact Test p-value:** {p:.4f}")
+                    ## --- Two Samples ---
+                    if group_selection == "Two Samples":
+                        if paired == "Paired":
+                            # McNemar Test
+                            from statsmodels.stats.contingency_tables import mcnemar
+                            stat, p_value = mcnemar(additional_params['table'], exact=True)
+                            st.write(f"**McNemar Test p-value:** {p_value:.4f}")
+                        else:
+                            # Fisher's Exact Test
+                            from scipy.stats import fisher_exact
+                            stat, p_value = fisher_exact(additional_params['table'])
+                            st.write(f"**Fisher's Exact Test p-value:** {p_value:.4f}")
+        
+                    ## --- More than Two Samples ---
                     elif group_selection == "More than Two Samples":
-                        stat, p = stats.chisquare(*[data[col] for col in data.columns])
-                        st.write(f"**Chi-Square Test p-value:** {p:.4f}")
+                        if paired == "Paired":
+                            # Cochran's Q Test
+                            from statsmodels.stats.contingency_tables import cochrans_q
+                            import numpy as np
+                            data = np.array(additional_params['paired_data']).T
+                            result = cochrans_q(data)
+                            stat = result.statistic
+                            p_value = result.pvalue
+                            st.write(f"**Cochran's Q Test Statistic:** {stat:.4f}")
+                            st.write(f"**p-value:** {p_value:.4f}")
+                        else:
+                            # Chi-Square Test
+                            from scipy.stats import chi2_contingency
+                            stat, p_value, dof, expected = chi2_contingency(additional_params['table'])
+                            st.write(f"**Chi-Square Test Statistic:** {stat:.4f}")
+                            st.write(f"**p-value:** {p_value:.4f}")
+                            st.write(f"**Degrees of Freedom:** {dof}")
+                            st.write("**Expected Frequencies:**")
+                            st.write(pd.DataFrame(expected))
 
                 ## --- Final Result Message ---
                 if p < 0.05:
