@@ -543,27 +543,47 @@ if selected_tab == "🚀 Run Test":
                 ## --- Discrete Data Workflow ---
                 if data_type == 'Discrete':
                     if group_selection == "One Sample":
+                        st.subheader("🧪 **One Sample Test: Binomial Test**"
+                                     )
+                        
                         success = additional_params['success']
                         trials = additional_params['trials']
                         result = stats.binomtest(success, trials, alternative=alternative)
                         p = result.pvalue
+                        st.write(f"**Number of Successes:** {success}")
+                        st.write(f"**Number of Trials:** {trials}")
                         st.write(f"**Binomial Test p-value:** {p:.4f}")
                     ## --- Two Samples ---
                     if group_selection == "Two Samples":
                         if paired == "Paired":
+                            st.subheader("🧪 **Paired Test: McNemar Test**")
                             # McNemar Test
                             from statsmodels.stats.contingency_tables import mcnemar
-                            stat, p_value = mcnemar(additional_params['table'], exact=True)
+                            table = [
+                                [additional_params['table'][0][0], additional_params['table'][0][1]],
+                                [additional_params['table'][1][0], additional_params['table'][1][1]]
+                            ]
+                            stat, p_value = mcnemar(table, exact=True)
+                            stat = stat.statistic
+                            p_value = p_value
+                            st.write(f"**McNemar Test Statistic:** {stat:.4f}")
                             st.write(f"**McNemar Test p-value:** {p_value:.4f}")
                         else:
                             # Fisher's Exact Test
+                            st.subheader("🧪 **Unpaired Test: Fisher's Exact Test**")
+                            table = [
+                                [additional_params['table'][0][0], additional_params['table'][0][1]],
+                                [additional_params['table'][1][0], additional_params['table'][1][1]]
+                            ]
                             from scipy.stats import fisher_exact
-                            stat, p_value = fisher_exact(additional_params['table'])
+                            odds_ratio, p_value = fisher_exact(table)
+                            st.write(f"**Odds Ratio:** {odds_ratio:.4f}")
                             st.write(f"**Fisher's Exact Test p-value:** {p_value:.4f}")
         
                     ## --- More than Two Samples ---
                     elif group_selection == "More than Two Samples":
                         if paired == "Paired":
+                            st.subheader("🧪 **Paired Test: Cochran's Q Test**")
                             # Cochran's Q Test
                             from statsmodels.stats.contingency_tables import cochrans_q
                             import numpy as np
