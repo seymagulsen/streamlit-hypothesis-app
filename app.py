@@ -5,6 +5,9 @@ import pandas as pd
 import scipy.stats as stats
 import matplotlib.pyplot as plt
 import ast
+import os
+os.system("pip install scikit-posthocs")
+
 
 # --- Session State Initialization ---
 if 'step_completed' not in st.session_state:
