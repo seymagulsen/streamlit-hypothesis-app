@@ -374,56 +374,6 @@ if selected_tab == "🚀 Run Test":
                     "Enter number of trials:",
                     min_value=1, value=1
                 )
-            elif group_selection == "Two Samples":
-                paired = st.radio("Are the groups Paired or Unpaired?", ("Paired", "Unpaired"))
-        
-                if paired == "Paired":
-                    st.write("**Paired Test Selected:** McNemar Test")
-                    table = [
-                        [st.number_input('Cell 1,1'), st.number_input('Cell 1,2')],
-                        [st.number_input('Cell 2,1'), st.number_input('Cell 2,2')]
-                    ]
-                    additional_params['table'] = table
-                else:
-                    st.write("**Unpaired Test Selected:** Fisher's Exact Test")
-                    table = [
-                        [st.number_input('Cell 1,1'), st.number_input('Cell 1,2')],
-                        [st.number_input('Cell 2,1'), st.number_input('Cell 2,2')]
-                    ]
-                    additional_params['table'] = table
-
-            elif group_selection == "More than Two Samples":
-                paired = st.radio("Are the groups Paired or Unpaired?", ("Paired", "Unpaired"))
-        
-                if paired == "Paired":
-                    st.write("**Paired Test Selected:** Cochran's Q Test")
-                    rows = st.number_input("Enter the number of paired groups (e.g., groups):", min_value=2, value=3)
-                    cols = st.number_input("Enter the number of samples per group:", min_value=1, value=10)
-            
-                    data = []
-                    for i in range(rows):
-                        group_data = []
-                        for j in range(cols):
-                            cell_value = st.number_input(f"Group {i+1}, Sample {j+1}", min_value=0, max_value=1, value=1)
-                            group_data.append(cell_value)
-                        data.append(group_data)
-            
-                    additional_params['paired_data'] = data
-
-                else:
-                    st.write("**Unpaired Test Selected:** Chi-Square Test")
-                    rows = st.number_input("Enter the number of rows (e.g., groups):", min_value=2, value=3)
-                    cols = st.number_input("Enter the number of columns (e.g., categories):", min_value=2, value=3)
-            
-                    table = []
-                    for i in range(rows):
-                        row = []
-                        for j in range(cols):
-                            cell_value = st.number_input(f"Enter value for Cell ({i+1},{j+1}):", min_value=0, value=0)
-                            row.append(cell_value)
-                        table.append(row)
-            
-                    additional_params['table'] = table
 
         # Run Test Button
         if st.button("Run Test"):
@@ -543,9 +493,7 @@ if selected_tab == "🚀 Run Test":
                 ## --- Discrete Data Workflow ---
                 if data_type == 'Discrete':
                     if group_selection == "One Sample":
-                        st.subheader("🧪 **One Sample Test: Binomial Test**"
-                                     )
-                        
+                        st.subheader("🧪 **One Sample Test: Binomial Test**")
                         success = additional_params['success']
                         trials = additional_params['trials']
                         result = stats.binomtest(success, trials, alternative=alternative)
@@ -559,22 +507,30 @@ if selected_tab == "🚀 Run Test":
                             st.subheader("🧪 **Paired Test: McNemar Test**")
                             # McNemar Test
                             from statsmodels.stats.contingency_tables import mcnemar
-                            table = [
-                                [additional_params['table'][0][0], additional_params['table'][0][1]],
-                                [additional_params['table'][1][0], additional_params['table'][1][1]]
-                            ]
-                            stat, p_value = mcnemar(table, exact=True)
-                            stat = stat.statistic
-                            p_value = p_value
+                            st.write("Enter values for a 2x2 contingency table:")
+                            a = st.number_input("Both Conditions Met (e.g., Yes-Yes)", min_value=0, value=1)
+                            b = st.number_input("First Condition Met, Second Not (e.g., Yes-No)", min_value=0, value=1)
+                            c = st.number_input("First Condition Not Met, Second Met (e.g., No-Yes)", min_value=0, value=1)
+                            d = st.number_input("Neither Condition Met (e.g., No-No)", min_value=0, value=1)
+                            if a + b + c + d == 0 and a + b + c + d != 1 and a<0 and b<0 and c<0 and d<0:
+                                st.error("⚠️ Please enter valid values for the contingency table.")
+                            table = [[a, b], [c, d]]
+                            result = mcnemar(table, exact=True)
+                            stat = result.statistic
+                            p_value = result.pvalue
                             st.write(f"**McNemar Test Statistic:** {stat:.4f}")
                             st.write(f"**McNemar Test p-value:** {p_value:.4f}")
                         else:
                             # Fisher's Exact Test
                             st.subheader("🧪 **Unpaired Test: Fisher's Exact Test**")
-                            table = [
-                                [additional_params['table'][0][0], additional_params['table'][0][1]],
-                                [additional_params['table'][1][0], additional_params['table'][1][1]]
-                            ]
+                            st.write("Enter values for a 2x2 contingency table:")
+                            a = st.number_input("Both Conditions Met (e.g., Yes-Yes)", min_value=0, value=1)
+                            b = st.number_input("First Condition Met, Second Not (e.g., Yes-No)", min_value=0, value=1)
+                            c = st.number_input("First Condition Not Met, Second Met (e.g., No-Yes)", min_value=0, value=1)
+                            d = st.number_input("Neither Condition Met (e.g., No-No)", min_value=0, value=1)
+                            if a + b + c + d == 0 and a + b + c + d != 1 and a<0 and b<0 and c<0 and d<0:
+                                st.error("⚠️ Please enter valid values for the contingency table.")
+                            table = [[a, b], [c, d]]
                             from scipy.stats import fisher_exact
                             odds_ratio, p_value = fisher_exact(table)
                             st.write(f"**Odds Ratio:** {odds_ratio:.4f}")
@@ -584,20 +540,45 @@ if selected_tab == "🚀 Run Test":
                     elif group_selection == "More than Two Samples":
                         if paired == "Paired":
                             st.subheader("🧪 **Paired Test: Cochran's Q Test**")
+                            rows = st.number_input("Number of Paired Groups", min_value=2, value=1)
+                            cols = st.number_input("Number of Samples per Group", min_value=1, value=1)
+                            if rows < 2 or cols < 1:
+                                st.error("⚠️ Please enter valid values for the group and sample counts.")   
+                            data = []
+                            for i in range(rows):
+                                group_data = []
+                                for j in range(cols):
+                                    val = st.number_input(f"Enter Value for Group {i+1}, Sample {j+1}", min_value=0, value=1)
+                                    group_data.append(val)
+                                data.append(group_data)
+
                             # Cochran's Q Test
                             from statsmodels.stats.contingency_tables import cochrans_q
                             import numpy as np
-                            data = np.array(additional_params['paired_data']).T
+                            data = np.array(data).T
                             result = cochrans_q(data)
                             stat = result.statistic
                             p_value = result.pvalue
                             st.write(f"**Cochran's Q Test Statistic:** {stat:.4f}")
                             st.write(f"**p-value:** {p_value:.4f}")
                         else:
-                            # Chi-Square Test
+                            
                             st.subheader("🧪 **Unpaired Test: Chi-Square Test**")
+                            rows = st.number_input("Number of Rows (Groups)", min_value=2, value=1)
+                            cols = st.number_input("Number of Columns (Categories)", min_value=1, value=1)
+                            if rows < 2 or cols < 1:
+                                st.error("⚠️ Please enter valid values for the group and category counts.") 
+                            table = []
+                            for i in range(rows):
+                                row = []
+                                for j in range(cols):
+                                    val = st.number_input(f"Enter Value for Group {i+1}, Column {j+1}", min_value=0, value=0)
+                                    row.append(val)
+                                table.append(row)
+
+                            # Chi-Square Test    
                             from scipy.stats import chi2_contingency
-                            stat, p_value, dof, expected = chi2_contingency(additional_params['table'])
+                            stat, p_value, dof, expected = chi2_contingency(table)
                             st.write(f"**Chi-Square Test Statistic:** {stat:.4f}")
                             st.write(f"**p-value:** {p_value:.4f}")
                             st.write(f"**Degrees of Freedom:** {dof}")
