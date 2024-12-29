@@ -5,8 +5,14 @@ import pandas as pd
 import scipy.stats as stats
 import matplotlib.pyplot as plt
 import ast
+import sys
 import os
-os.system("pip install scikit-posthocs")
+
+# Explicitly add the site-packages path to sys.path
+sys.path.append(os.path.expanduser('~/.local/lib/python3.12/site-packages'))
+
+# Now import scikit-posthocs
+import scikit_posthocs as sp
 
 
 # --- Session State Initialization ---
