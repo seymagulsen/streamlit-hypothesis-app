@@ -27,7 +27,7 @@ if 'parametric' not in st.session_state:
 if 'paired' not in st.session_state:
     st.session_state['paired'] = None
 if 'current_tab' not in st.session_state:
-    st.session_state['current_tab'] = 'Data Input'
+    st.session_state['current_tab'] = st.query_params.get("tab", "📂 Data Input")
 
 # --- Sidebar for Title and Flowchart ---
 with st.sidebar:
@@ -109,8 +109,10 @@ if st.session_state['current_tab'] not in tabs:
     st.session_state['current_tab'] = "📂 Data Input"  # Ensure it defaults to the first tab if mismatched
 
 # Tab Selection
+# Navigation
 selected_tab = st.radio("Navigation", tabs, index=tabs.index(st.session_state['current_tab']))
 st.session_state['current_tab'] = selected_tab
+st.query_params["tab"] = selected_tab
 
 
 # --- Tab 1: Data Input ---
@@ -144,11 +146,9 @@ if selected_tab == "📂 Data Input":
         if st.button("Next: Data Type Selection"):
             st.session_state['step_completed']['Data Input'] = True
             st.session_state['current_tab'] = '📊 Data Type Selection'
-            try:
-                st.experimental_set_query_params(tab='📊 Data Type Selection')
-            except Exception as e:
-                st.write(f"Query Param Error: {e}")
-                st.rerun()
+            st.query_params["tab"] = "📊 Data Type Selection"
+            st.write("Data Input Completed! Proceed to the next step.")
+            st.rerun()  # Refresh the page to update the sidebar progress
 
 # --- Tab 2: Data Type Selection ---
 if selected_tab == "📊 Data Type Selection":
@@ -162,11 +162,9 @@ if selected_tab == "📊 Data Type Selection":
         if st.button("Next: Assumption Check"):
             st.session_state['step_completed']['Data Type'] = True
             st.session_state['current_tab'] = '🔍 Assumption Check'
-            try:
-                st.experimental_set_query_params(tab='📊 Data Type Selection')
-            except Exception as e:
-                st.write(f"Query Param Error: {e}")
-                st.rerun()
+            st.query_params["tab"] = "🔍 Assumption Check"
+            st.write("Data Type Selection Completed! Proceed to the next step.")
+            st.rerun()
 
 # --- Tab 3: Assumption Check ---
 if selected_tab == "🔍 Assumption Check":
@@ -240,11 +238,9 @@ if selected_tab == "🔍 Assumption Check":
         if st.button("Next: Group Selection"):
             st.session_state['step_completed']['Assumption Check'] = True
             st.session_state['current_tab'] = '🧑‍🤝‍🧑 Group Selection'
-            try:
-                st.experimental_set_query_params(tab='📊 Data Type Selection')
-            except Exception as e:
-                st.write(f"Query Param Error: {e}")
-                st.rerun()
+            st.query_params["tab"] = "🧑‍🤝‍🧑 Group Selection"
+            st.write("Assumption Check Completed! Proceed to the next step.")
+            st.rerun()
 
 # --- Tab 4: Group Selection ---
 if selected_tab == "🧑‍🤝‍🧑 Group Selection":
@@ -295,10 +291,8 @@ if selected_tab == "🧑‍🤝‍🧑 Group Selection":
             else:
                 st.session_state['step_completed']['Group Selection'] = True
                 st.session_state['current_tab'] = '🚀 Run Test'
-            try:
-                st.experimental_set_query_params(tab='📊 Data Type Selection')
-            except Exception as e:
-                st.write(f"Query Param Error: {e}")
+                st.query_params["tab"] = "🚀 Run Test"
+                st.write("Group Selection Completed! Proceed to the next step.")
                 st.rerun()
 
 
@@ -496,3 +490,9 @@ if selected_tab == "🚀 Run Test":
                 st.error(f"❌ **Error:** {e}")
                 st.info("Please ensure you have selected the correct data type and group selection.")
 
+# --- Reset Button ---
+if st.button("🔄 Reset App"):
+    st.session_state.clear()
+    st.query_params.clear()
+    st.query_params["tab"] = "📂 Data Input"
+    st.rerun()
