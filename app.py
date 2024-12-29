@@ -9,7 +9,7 @@ import ast
 # --- Session State Initialization ---
 if 'step_completed' not in st.session_state:
     st.session_state['step_completed'] = {
-        'Data Input': False,
+        'Data Input': True,
         'Data Type': False,
         'Assumption Check': False,
         'Group Selection': False,
