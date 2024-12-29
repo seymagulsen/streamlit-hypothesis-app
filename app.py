@@ -595,6 +595,7 @@ if selected_tab == "🚀 Run Test":
                             st.write(f"**p-value:** {p_value:.4f}")
                         else:
                             # Chi-Square Test
+                            st.subheader("🧪 **Unpaired Test: Chi-Square Test**")
                             from scipy.stats import chi2_contingency
                             stat, p_value, dof, expected = chi2_contingency(additional_params['table'])
                             st.write(f"**Chi-Square Test Statistic:** {stat:.4f}")
