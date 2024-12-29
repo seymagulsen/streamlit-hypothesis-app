@@ -170,12 +170,21 @@ if selected_tab == "📊 Data Type Selection":
         
         st.session_state['data_type'] = st.radio("Select Data Type:", ['Continuous', 'Discrete'])
 
-        if st.button("Next: Assumption Check"):
+        if st.button("Next"):
             st.session_state['step_completed']['Data Type'] = True
-            st.session_state['current_tab'] = '🔍 Assumption Check'
-            st.query_params["tab"] = "🔍 Assumption Check"
-            st.write("Data Type Selection Completed! Proceed to the next step.")
+            if st.session_state['data_type'] == "Discrete":
+                # Skip Assumption Check for Discrete Data
+                st.session_state['step_completed']['Assumption Check'] = True
+                st.session_state['current_tab'] = '🧑‍🤝‍🧑 Group Selection'
+                st.query_params["tab"] = "🧑‍🤝‍🧑 Group Selection"
+                st.write("Discrete data selected. Skipping Assumption Check. Proceeding to Group Selection...")
+            else:
+                # Proceed to Assumption Check for Continuous Data
+                st.session_state['current_tab'] = '🔍 Assumption Check'
+                st.query_params["tab"] = "🔍 Assumption Check"
+                st.write("Data Type Selection Completed! Proceed to Assumption Check.")
             st.rerun()
+
 
 # --- Tab 3: Assumption Check ---
 if selected_tab == "🔍 Assumption Check":
@@ -184,81 +193,75 @@ if selected_tab == "🔍 Assumption Check":
     if not st.session_state['step_completed']['Data Type']:
         st.warning("⚠️ Please complete 'Data Type Selection' first.")
     else:
-        if st.session_state['data_type'] == "Discrete":
-            st.info("ℹ️ No assumption checks are required for Discrete data.")
+
+        st.write("Performing assumption checks...")
+
+        # Initialize assumption flags
+        normal = False
+        homogeneous = False
+        independence_check = False
+        outliers = 0
+
+        # Normality Test (Shapiro-Wilk Test)
+        with st.expander("🔍 Normality Test (Shapiro-Wilk)"):
+            try:
+                shapiro_p = stats.shapiro(st.session_state['data'].iloc[:, 0])[1]
+                st.write(f"**Shapiro-Wilk p-value:** {shapiro_p:.4f}")
+                normal = shapiro_p > 0.05
+                st.success("✅ Data is normally distributed." if normal else "❌ Data is not normally distributed.")
+            except Exception as e:
+                st.error(f"Normality Test Error: {e}")
+
+        # Homogeneity of Variances (Levene's Test)
+        with st.expander("🔍 Homogeneity of Variances (Levene Test)"):
+            try:
+                if st.session_state['data'].shape[1] > 1:
+                    levene_p = stats.levene(*[st.session_state['data'][col] for col in st.session_state['data'].columns])[1]
+                    st.write(f"**Levene p-value:** {levene_p:.4f}")
+                    homogeneous = levene_p > 0.05
+                    st.success("✅ Variances are homogeneous." if homogeneous else "❌ Variances are not homogeneous.")
+                else:
+                    st.info("ℹ️ At least two groups are needed to test homogeneity of variances.")
+                    homogeneous = True  # Assume True if only one group is present
+            except Exception as e:
+                st.error(f"Homogeneity Test Error: {e}")
+
+        # Independence Check
+        with st.expander("🔗 Independence and Identically Distributed Samples"):
+            st.write("""
+            - Samples should be collected independently.
+            - Each observation should not influence another observation.
+            - Samples should follow the same distribution.
+            """)
+            independence_check = st.checkbox("✅ Check if samples are independent and identically distributed")
+            st.success("✅ Samples are independent and identically distributed." if independence_check else "❌ Samples might not be independent or identically distributed.")
+
+        # Outlier Detection (Z-Score Method)
+        with st.expander("⚠️ Absence of Significant Outliers"):
+            try:
+                z_scores = (st.session_state['data'] - st.session_state['data'].mean()) / st.session_state['data'].std()
+                outliers = (z_scores.abs() > 3).sum().sum()
+                st.write(f"**Number of Outliers Detected:** {outliers}")
+                st.success("✅ No significant outliers detected." if outliers == 0 else f"⚠️ {outliers} significant outlier(s) detected.")
+            except Exception as e:
+                st.error(f"Outlier Detection Error: {e}")
+
+        # Final Decision on Parametric/Non-Parametric Tests
+        st.markdown("---")
+        st.session_state['parametric'] = normal and homogeneous and independence_check and outliers == 0
+        
+        if st.session_state['parametric']:
+            st.success("✅ **All assumptions hold. Proceed with Parametric Tests.**")
+        else:
+            st.warning("❌ **Assumptions violated. Proceed with Non-Parametric Tests.**")
+
+        # Proceed to the Next Step
+        if st.button("Next: Group Selection"):
             st.session_state['step_completed']['Assumption Check'] = True
             st.session_state['current_tab'] = '🧑‍🤝‍🧑 Group Selection'
             st.query_params["tab"] = "🧑‍🤝‍🧑 Group Selection"
+            st.write("Assumption Check Completed! Proceed to the next step.")
             st.rerun()
-        else:
-            st.write("Performing assumption checks...")
-
-            # Initialize assumption flags
-            normal = False
-            homogeneous = False
-            independence_check = False
-            outliers = 0
-
-            # Normality Test (Shapiro-Wilk Test)
-            with st.expander("🔍 Normality Test (Shapiro-Wilk)"):
-                try:
-                    shapiro_p = stats.shapiro(st.session_state['data'].iloc[:, 0])[1]
-                    st.write(f"**Shapiro-Wilk p-value:** {shapiro_p:.4f}")
-                    normal = shapiro_p > 0.05
-                    st.success("✅ Data is normally distributed." if normal else "❌ Data is not normally distributed.")
-                except Exception as e:
-                    st.error(f"Normality Test Error: {e}")
-
-            # Homogeneity of Variances (Levene's Test)
-            with st.expander("🔍 Homogeneity of Variances (Levene Test)"):
-                try:
-                    if st.session_state['data'].shape[1] > 1:
-                        levene_p = stats.levene(*[st.session_state['data'][col] for col in st.session_state['data'].columns])[1]
-                        st.write(f"**Levene p-value:** {levene_p:.4f}")
-                        homogeneous = levene_p > 0.05
-                        st.success("✅ Variances are homogeneous." if homogeneous else "❌ Variances are not homogeneous.")
-                    else:
-                        st.info("ℹ️ At least two groups are needed to test homogeneity of variances.")
-                        homogeneous = True  # Assume True if only one group is present
-                except Exception as e:
-                    st.error(f"Homogeneity Test Error: {e}")
-
-            # Independence Check
-            with st.expander("🔗 Independence and Identically Distributed Samples"):
-                st.write("""
-                - Samples should be collected independently.
-                - Each observation should not influence another observation.
-                - Samples should follow the same distribution.
-                """)
-                independence_check = st.checkbox("✅ Check if samples are independent and identically distributed")
-                st.success("✅ Samples are independent and identically distributed." if independence_check else "❌ Samples might not be independent or identically distributed.")
-
-            # Outlier Detection (Z-Score Method)
-            with st.expander("⚠️ Absence of Significant Outliers"):
-                try:
-                    z_scores = (st.session_state['data'] - st.session_state['data'].mean()) / st.session_state['data'].std()
-                    outliers = (z_scores.abs() > 3).sum().sum()
-                    st.write(f"**Number of Outliers Detected:** {outliers}")
-                    st.success("✅ No significant outliers detected." if outliers == 0 else f"⚠️ {outliers} significant outlier(s) detected.")
-                except Exception as e:
-                    st.error(f"Outlier Detection Error: {e}")
-
-            # Final Decision on Parametric/Non-Parametric Tests
-            st.markdown("---")
-            st.session_state['parametric'] = normal and homogeneous and independence_check and outliers == 0
-        
-            if st.session_state['parametric']:
-                st.success("✅ **All assumptions hold. Proceed with Parametric Tests.**")
-            else:
-                st.warning("❌ **Assumptions violated. Proceed with Non-Parametric Tests.**")
-
-            # Proceed to the Next Step
-            if st.button("Next: Group Selection"):
-                st.session_state['step_completed']['Assumption Check'] = True
-                st.session_state['current_tab'] = '🧑‍🤝‍🧑 Group Selection'
-                st.query_params["tab"] = "🧑‍🤝‍🧑 Group Selection"
-                st.write("Assumption Check Completed! Proceed to the next step.")
-                st.rerun()
 
 # --- Tab 4: Group Selection ---
 if selected_tab == "🧑‍🤝‍🧑 Group Selection":
@@ -362,18 +365,6 @@ if selected_tab == "🚀 Run Test":
                 st.write(f"- **Group Selection:** {group_selection}")
                 st.write(f"- **Sample Type:** {paired}")
         
-        # 📊 **Discrete Data Tests**
-        if data_type == "Discrete":
-            st.subheader("📊 Discrete Data Test Parameters")
-            if group_selection == "One Sample":
-                additional_params['success'] = st.number_input(
-                    "Enter number of successes:",
-                    min_value=0, value=1
-                )
-                additional_params['trials'] = st.number_input(
-                    "Enter number of trials:",
-                    min_value=1, value=1
-                )
 
         # Run Test Button
         if st.button("Run Test"):
@@ -492,58 +483,64 @@ if selected_tab == "🚀 Run Test":
 
                 ## --- Discrete Data Workflow ---
                 if data_type == 'Discrete':
+                    ## --- One Sample ---
                     if group_selection == "One Sample":
                         st.subheader("🧪 **One Sample Test: Binomial Test**")
-                        success = additional_params['success']
-                        trials = additional_params['trials']
-                        result = stats.binomtest(success, trials, alternative=alternative)
-                        p = result.pvalue
-                        st.write(f"**Number of Successes:** {success}")
-                        st.write(f"**Number of Trials:** {trials}")
-                        st.write(f"**Binomial Test p-value:** {p:.4f}")
+                        success = st.number_input("Enter number of successes:", min_value=0, value=1)
+                        trials = st.number_input("Enter number of trials:", min_value=1, value=1)
+                        
+                        if st.button("Run Binomial Test"):
+                            result = stats.binomtest(success, trials, alternative=alternative)
+                            p = result.pvalue
+                            st.write(f"**Number of Successes:** {success}")
+                            st.write(f"**Number of Trials:** {trials}")
+                            st.write(f"**Binomial Test p-value:** {p:.4f}")
                     ## --- Two Samples ---
-                    if group_selection == "Two Samples":
+                    elif group_selection == "Two Samples":
                         if paired == "Paired":
                             st.subheader("🧪 **Paired Test: McNemar Test**")
-                            # McNemar Test
-                            from statsmodels.stats.contingency_tables import mcnemar
                             st.write("Enter values for a 2x2 contingency table:")
-                            a = st.number_input("Both Conditions Met (e.g., Yes-Yes)", min_value=0, value=1)
-                            b = st.number_input("First Condition Met, Second Not (e.g., Yes-No)", min_value=0, value=1)
-                            c = st.number_input("First Condition Not Met, Second Met (e.g., No-Yes)", min_value=0, value=1)
-                            d = st.number_input("Neither Condition Met (e.g., No-No)", min_value=0, value=1)
-                            if a + b + c + d == 0 and a + b + c + d != 1 and a<0 and b<0 and c<0 and d<0:
-                                st.error("⚠️ Please enter valid values for the contingency table.")
-                            table = [[a, b], [c, d]]
-                            result = mcnemar(table, exact=True)
-                            stat = result.statistic
-                            p_value = result.pvalue
-                            st.write(f"**McNemar Test Statistic:** {stat:.4f}")
-                            st.write(f"**McNemar Test p-value:** {p_value:.4f}")
+                            yes_yes = st.number_input("Condition Met in Both Scenarios (Yes-Yes):", min_value=0, value=10)
+                            yes_no = st.number_input("Condition Changed from Yes to No:", min_value=0, value=5)
+                            no_yes = st.number_input("Condition Changed from No to Yes:", min_value=0, value=3)
+                            no_no = st.number_input("Condition Not Met in Both Scenarios (No-No):", min_value=0, value=7)
+
+                            if st.button("Run McNemar Test"):
+                                try:
+                                    table = [[yes_yes, yes_no], [no_yes, no_no]]
+                                    result = mcnemar(table, exact=True)
+                                    stat = result.statistic
+                                    p_value = result.pvalue
+                                    st.write(f"**McNemar Test Statistic:** {stat:.4f}")
+                                    st.write(f"**McNemar Test p-value:** {p_value:.4f}")
+                                except Exception as e:
+                                    st.error(f"❌ **Error:** {e}")
+                                    st.info("Please ensure you have entered valid values for the contingency table.")
                         else:
-                            # Fisher's Exact Test
                             st.subheader("🧪 **Unpaired Test: Fisher's Exact Test**")
                             st.write("Enter values for a 2x2 contingency table:")
-                            a = st.number_input("Both Conditions Met (e.g., Yes-Yes)", min_value=0, value=1)
-                            b = st.number_input("First Condition Met, Second Not (e.g., Yes-No)", min_value=0, value=1)
-                            c = st.number_input("First Condition Not Met, Second Met (e.g., No-Yes)", min_value=0, value=1)
-                            d = st.number_input("Neither Condition Met (e.g., No-No)", min_value=0, value=1)
-                            if a + b + c + d == 0 and a + b + c + d != 1 and a<0 and b<0 and c<0 and d<0:
-                                st.error("⚠️ Please enter valid values for the contingency table.")
-                            table = [[a, b], [c, d]]
-                            from scipy.stats import fisher_exact
-                            odds_ratio, p_value = fisher_exact(table)
-                            st.write(f"**Odds Ratio:** {odds_ratio:.4f}")
-                            st.write(f"**Fisher's Exact Test p-value:** {p_value:.4f}")
+                            group1_yes = st.number_input("Group 1: Condition Met (Yes):", min_value=0, value=10)
+                            group1_no = st.number_input("Group 1: Condition Not Met (No):", min_value=0, value=5)
+                            group2_yes = st.number_input("Group 2: Condition Met (Yes):", min_value=0, value=7)
+                            group2_no = st.number_input("Group 2: Condition Not Met (No):", min_value=0, value=8)
+
+                            if st.button("Run Fisher's Exact Test"):
+                                try:
+                                    table = [[group1_yes, group1_no], [group2_yes, group2_no]]
+                                    odds_ratio, p_value = fisher_exact(table)
+                                    st.write(f"**Odds Ratio:** {odds_ratio:.4f}")
+                                    st.write(f"**Fisher's Exact Test p-value:** {p_value:.4f}")
+                                except Exception as e:
+                                    st.error(f"❌ **Error:** {e}")
+                                    st.info("Please ensure you have entered valid values for the contingency table.")
         
                     ## --- More than Two Samples ---
                     elif group_selection == "More than Two Samples":
                         if paired == "Paired":
                             st.subheader("🧪 **Paired Test: Cochran's Q Test**")
                             rows = st.number_input("Number of Paired Groups", min_value=2, value=1)
-                            cols = st.number_input("Number of Samples per Group", min_value=1, value=1)
-                            if rows < 2 or cols < 1:
-                                st.error("⚠️ Please enter valid values for the group and sample counts.")   
+                            cols = st.number_input("Number of Samples per Group", min_value=1, value=5)
+
                             data = []
                             for i in range(rows):
                                 group_data = []
@@ -552,22 +549,24 @@ if selected_tab == "🚀 Run Test":
                                     group_data.append(val)
                                 data.append(group_data)
 
-                            # Cochran's Q Test
-                            from statsmodels.stats.contingency_tables import cochrans_q
-                            import numpy as np
-                            data = np.array(data).T
-                            result = cochrans_q(data)
-                            stat = result.statistic
-                            p_value = result.pvalue
-                            st.write(f"**Cochran's Q Test Statistic:** {stat:.4f}")
-                            st.write(f"**p-value:** {p_value:.4f}")
+                            if st.button("Run Cochran's Q Test"):
+                                try:
+                                    import numpy as np
+                                    data = pd.DataFrame(data).T
+                                    result = cochrans_q(data)
+                                    stat = result.statistic
+                                    p_value = result.pvalue
+                                    st.write(f"**Cochran's Q Test Statistic:** {stat:.4f}")
+                                    st.write(f"**p-value:** {p_value:.4f}")
+                                except Exception as e:
+                                    st.error(f"❌ **Error:** {e}")
+                                    st.info("Please ensure you have entered valid values for the contingency table.")
+  
                         else:
-                            
                             st.subheader("🧪 **Unpaired Test: Chi-Square Test**")
-                            rows = st.number_input("Number of Rows (Groups)", min_value=2, value=1)
-                            cols = st.number_input("Number of Columns (Categories)", min_value=1, value=1)
-                            if rows < 2 or cols < 1:
-                                st.error("⚠️ Please enter valid values for the group and category counts.") 
+                            rows = st.number_input("Number of Rows (Groups)", min_value=2, value=2)
+                            cols = st.number_input("Number of Columns (Categories)", min_value=2, value=2)
+
                             table = []
                             for i in range(rows):
                                 row = []
@@ -576,14 +575,18 @@ if selected_tab == "🚀 Run Test":
                                     row.append(val)
                                 table.append(row)
 
-                            # Chi-Square Test    
-                            from scipy.stats import chi2_contingency
-                            stat, p_value, dof, expected = chi2_contingency(table)
-                            st.write(f"**Chi-Square Test Statistic:** {stat:.4f}")
-                            st.write(f"**p-value:** {p_value:.4f}")
-                            st.write(f"**Degrees of Freedom:** {dof}")
-                            st.write("**Expected Frequencies:**")
-                            st.write(pd.DataFrame(expected))
+                            if st.button("Run Chi-Square Test"):
+                                try:
+                                    table = np.array(table)
+                                    stat, p_value, dof, expected = chi2_contingency(table)
+                                    st.write(f"**Chi-Square Test Statistic:** {stat:.4f}")
+                                    st.write(f"**p-value:** {p_value:.4f}")
+                                    st.write(f"**Degrees of Freedom:** {dof}")
+                                    st.write("**Expected Frequencies:**")
+                                    st.write(pd.DataFrame(expected))
+                                except Exception as e:
+                                    st.error(f"❌ **Error:** {e}")
+                                    st.info("Please ensure you have entered valid values for the contingency table.")
 
                 ## --- Final Result Message ---
                 if p < 0.05:
