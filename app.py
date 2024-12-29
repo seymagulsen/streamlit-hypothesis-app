@@ -606,7 +606,7 @@ if selected_tab == "🚀 Run Test":
 
                             try:
                                 import numpy as np
-                                table = np.array(additional_params['chi_table'])
+                                table = np.array(additional_params['chi2_table'])
                                 statistic, p_value, dof, expected_freq = chi2_contingency(table)
                                 stat = statistic
                                 p = p_value
