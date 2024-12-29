@@ -41,50 +41,6 @@ if 'paired' not in st.session_state:
 if 'current_tab' not in st.session_state:
     st.session_state['current_tab'] = st.query_params.get("tab", "📂 Data Input")
 
-# --- Session State Initialization for Test Parameters ---
-
-# Binomial Test
-if 'success' not in st.session_state:
-    st.session_state['success'] = 1
-if 'trials' not in st.session_state:
-    st.session_state['trials'] = 1
-
-# McNemar Test
-if 'yes_yes' not in st.session_state:
-    st.session_state['yes_yes'] = 0
-if 'yes_no' not in st.session_state:
-    st.session_state['yes_no'] = 0
-if 'no_yes' not in st.session_state:
-    st.session_state['no_yes'] = 0
-if 'no_no' not in st.session_state:
-    st.session_state['no_no'] = 0
-
-# Fisher's Exact Test
-if 'group1_yes' not in st.session_state:
-    st.session_state['group1_yes'] = 0
-if 'group1_no' not in st.session_state:
-    st.session_state['group1_no'] = 0
-if 'group2_yes' not in st.session_state:
-    st.session_state['group2_yes'] = 0
-if 'group2_no' not in st.session_state:
-    st.session_state['group2_no'] = 0
-
-# Cochran's Q Test
-if 'paired_rows' not in st.session_state:
-    st.session_state['paired_rows'] = 2
-if 'paired_cols' not in st.session_state:
-    st.session_state['paired_cols'] = 2
-if 'paired_data' not in st.session_state:
-    st.session_state['paired_data'] = [[1]*2 for _ in range(2)]
-
-# Chi-Square Test
-if 'chi_rows' not in st.session_state:
-    st.session_state['chi_rows'] = 2
-if 'chi_cols' not in st.session_state:
-    st.session_state['chi_cols'] = 2
-if 'chi_table' not in st.session_state:
-    st.session_state['chi_table'] = [[0]*2 for _ in range(2)]
-
 
 # --- Sidebar for Title and Flowchart ---
 with st.sidebar:
@@ -411,6 +367,57 @@ if selected_tab == "🚀 Run Test":
                 st.write(f"- **Group Selection:** {group_selection}")
                 st.write(f"- **Sample Type:** {paired}")
         
+        # 📊 **Discrete Data Tests**
+        if data_type == "Discrete":
+            st.subheader("📊 Discrete Data Test Parameters")
+
+            #---- One Sample ----
+            if group_selection == "One Sample":
+                st.write("One Sample Test Parameters:")
+                additional_params['success'] = st.number_input("Enter Number of Successes:", 
+                                                               min_value=0, 
+                                                               value=1)
+                additional_params['trials'] = st.number_input("Enter Number of Trials:", 
+                                                              min_value=1, 
+                                                              value=1)
+            elif group_selection == "Two Samples":
+
+                if paired == "Paired":
+                    st.write("McNemar Test Parameters:")
+                    additional_params['yes_yes'] = st.number_input("Condition Met in Both Scenarios (Yes-Yes):", min_value=0, value=0)
+                    additional_params['yes_no'] = st.number_input("Condition Changed from Yes to No (Yes-No):", min_value=0, value=0)
+                    additional_params['no_yes'] = st.number_input("Condition Changed from No to Yes (No-Yes):", min_value=0, value=0)
+                    additional_params['no_no'] = st.number_input("Condition Not Met in Both Scenarios (No-No):", min_value=0, value=0)
+                else:
+                    st.write("Fisher's Exact Test Parameters:")
+                    st.write("Enter values for a 2x2 contingency table:")
+                    additional_params['group1_yes'] = st.number_input("Group 1: Condition Met (Yes):", min_value=0, value=0)
+                    additional_params['group1_no'] = st.number_input("Group 1: Condition Not Met (No):", min_value=0, value=0)
+                    additional_params['group2_yes'] = st.number_input("Group 2: Condition Met (Yes):", min_value=0, value=0)
+                    additional_params['group2_no'] = st.number_input("Group 2: Condition Not Met (No):", min_value=0, value=0)
+            
+            elif group_selection == "More than Two Samples":
+
+                if paired == "Paired":
+                    st.write("Cochran's Q Test Parameters:")
+                    st.write("Enter values for a contingency table:")
+                    additional_params['paired_rows'] = st.number_input("Number of Rows (Groups)", min_value=2, value=2)
+                    additional_params['paired_cols'] = st.number_input("Number of Columns (Samples)", min_value=1, value=2)
+                    additional_params['paired_data'] =  [
+                        [st.number_input(f"Value for Group {i+1}, Sample {j+1}", min_value=0, value=0)
+                         for j in range(additional_params['paired_cols'])] 
+                         for i in range(additional_params['paired_rows'])
+                         ]
+                else:
+                    st.write("Kruskal-Wallis H Test Parameters:")
+                    st.write("Enter values for a contingency table:")
+                    additional_params['chi2_rows'] = st.number_input("Number of Rows (Groups)", min_value=2, value=2)
+                    additional_params['chi2_cols'] = st.number_input("Number of Columns (Samples)", min_value=1, value=2)
+                    additional_params['chi2_table'] =  [
+                        [st.number_input(f"Value for Group {i+1}, Sample {j+1}", min_value=0, value=0)
+                         for j in range(additional_params['chi2_cols'])] 
+                         for i in range(additional_params['chi2_rows'])
+                         ]
 
         # Run Test Button
         if st.button("Run Test"):
@@ -532,30 +539,17 @@ if selected_tab == "🚀 Run Test":
                     ## --- One Sample ---
                     if group_selection == "One Sample":
                         st.subheader("🧪 **One Sample Test: Binomial Test**")
-                        if 'success' not in st.session_state:
-                            st.session_state['success'] = 1
-                        if 'trials' not in st.session_state:
-                            st.session_state['trials'] = 1
-                        
-                        st.session_state['success'] = st.number_input(
-                            "Enter Number of Successes:", 
-                            min_value=0, 
-                            value=st.session_state['success'])
-                        st.session_state['trials'] = st.number_input(
-                            "Enter Number of Trials:", 
-                            min_value=1, 
-                            value=st.session_state['trials'])
-                        
+                       
                         try:
                             result = stats.binomtest(
-                                st.session_state['success'],
-                                st.session_state['trials'],
+                                additional_params['success'],
+                                additional_params['trials'],
                                 p=0.5,
                                 alternative=alternative)
                             
                             p = result.pvalue
-                            st.write(f"**Number of Successes:** {st.session_state['success']}")
-                            st.write(f"**Number of Trials:** {st.session_state['trials']}")
+                            st.write(f"**Number of Successes:** {additional_params['success']}")
+                            st.write(f"**Number of Trials:** {additional_params['trials']}")
                             st.write(f"**Binomial Test p-value:** {p:.4f}")
                         except Exception as e:
                             st.error(f"❌ **Error:** {e}")
@@ -565,27 +559,10 @@ if selected_tab == "🚀 Run Test":
                     elif group_selection == "Two Samples":
                         if paired == "Paired":
                             st.subheader("🧪 **Paired Test: McNemar Test**")
-                            st.write("Enter values for a 2x2 contingency table:")
-
-                            # Persist inputs using session_state
-                            if 'yes_yes' not in st.session_state:
-                                st.session_state['yes_yes'] = 0
-                            if 'yes_no' not in st.session_state:
-                                st.session_state['yes_no'] = 0
-                            if 'no_yes' not in st.session_state:
-                                st.session_state['no_yes'] = 0
-                            if 'no_no' not in st.session_state:
-                                st.session_state['no_no'] = 0
                             
-                            st.session_state['yes_yes'] = st.number_input("Condition Met in Both Scenarios (Yes-Yes):", min_value=0, value=st.session_state['yes_yes'])
-                            st.session_state['yes_no'] = st.number_input("Condition Changed from Yes to No (Yes-No):", min_value=0, value=st.session_state['yes_no'])
-                            st.session_state['no_yes'] = st.number_input("Condition Changed from No to Yes (No-Yes):", min_value=0, value=st.session_state['no_yes'])
-                            st.session_state['no_no'] = st.number_input("Condition Not Met in Both Scenarios (No-No):", min_value=0, value=st.session_state['no_no'])
-
-                        
                             try:
-                                table = [[st.session_state['yes_yes'], st.session_state['yes_no']], 
-                                         [st.session_state['no_yes'], st.session_state['no_no']]]
+                                table = [[additional_params['yes_yes'], additional_params['yes_no']], 
+                                         [additional_params['no_yes'], additional_params['no_no']]]
                                 result = mcnemar(table, exact=True)
                                 stat = result.statistic
                                 p = result.pvalue
@@ -596,27 +573,10 @@ if selected_tab == "🚀 Run Test":
                                 st.info("Please ensure you have entered valid values for the contingency table.")
                         else:
                             st.subheader("🧪 **Unpaired Test: Fisher's Exact Test**")
-                            st.write("Enter values for a 2x2 contingency table:")
-
-                            # Persist inputs using session_state
-                            if 'group1_yes' not in st.session_state:
-                                st.session_state['group1_yes'] = 0
-                            if 'group1_no' not in st.session_state:
-                                st.session_state['group1_no'] = 0
-                            if 'group2_yes' not in st.session_state:
-                                st.session_state['group2_yes'] = 0
-                            if 'group2_no' not in st.session_state:
-                                st.session_state['group2_no'] = 0
-                            
-                            st.session_state['group1_yes'] = st.number_input("Group 1: Condition Met (Yes):", min_value=0, value=st.session_state['group1_yes'])
-                            st.session_state['group1_no'] = st.number_input("Group 1: Condition Not Met (No):", min_value=0, value=st.session_state['group1_no'])
-                            st.session_state['group2_yes'] = st.number_input("Group 2: Condition Met (Yes):", min_value=0, value=st.session_state['group2_yes'])
-                            st.session_state['group2_no'] = st.number_input("Group 2: Condition Not Met (No):", min_value=0, value=st.session_state['group2_no'])
-
                             
                             try:
-                                table = [[st.session_state['group1_yes'], st.session_state['group1_no']], 
-                                         [st.session_state['group2_yes'], st.session_state['group2_no']]]
+                                table = [[additional_params['group1_yes'], additional_params['group1_no']], 
+                                         [additional_params['group2_yes'], additional_params['group2_no']]]
                                 odds_ratio, p = fisher_exact(table)
                                 st.write(f"**Odds Ratio:** {odds_ratio:.4f}")
                                 st.write(f"**Fisher's Exact Test p-value:** {p:.4f}")
@@ -628,29 +588,10 @@ if selected_tab == "🚀 Run Test":
                     elif group_selection == "More than Two Samples":
                         if paired == "Paired":
                             st.subheader("🧪 **Paired Test: Cochran's Q Test**")
-                            st.write("Enter values for a contingency table:")
-
-                            if 'paired_rows' not in st.session_state:
-                                st.session_state['paired_rows'] = 2
-                            if 'paired_cols' not in st.session_state:
-                                st.session_state['paired_cols'] = 2
-                            if 'paired_data' not in st.session_state:
-                                st.session_state['paired_data'] = [[1]*2 for _ in range(2)]
-
-                            st.session_state['paired_rows'] = st.number_input("Number of Rows (Groups)", min_value=2, value=st.session_state['paired_rows'])
-                            st.session_state['paired_cols'] = st.number_input("Number of Columns (Samples)", min_value=1, value=st.session_state['paired_cols'])
-
-                            for i in range(st.session_state['paired_rows']):
-                                for j in range(st.session_state['paired_cols']):
-                                    st.session_state['paired_data'][i][j] = st.number_input(
-                                        f"Enter Value for Group {i+1}, Sample {j+1}",
-                                          min_value=0, 
-                                          value=st.session_state['paired_data'][i][j]
-                                          )
-                            
+  
                             try:
                                 import numpy as np
-                                data = pd.DataFrame(st.session_state['paired_data']).T
+                                data = pd.DataFrame(additional_params['paired_data']).T
                                 result = cochrans_q(data)
                                 stat = result.statistic
                                 p = result.pvalue
@@ -664,26 +605,8 @@ if selected_tab == "🚀 Run Test":
                             st.subheader("🧪 **Unpaired Test: Chi-Square Test**")
                             st.write("Enter values for a contingency table:")
 
-                            if 'chi_rows' not in st.session_state:
-                                st.session_state['chi_rows'] = 2
-                            if 'chi_cols' not in st.session_state:
-                                st.session_state['chi_cols'] = 2
-                            if 'chi_table' not in st.session_state:
-                                st.session_state['chi_table'] = [[0]*2 for _ in range(2)]
-                            
-                            st.session_state['chi_rows'] = st.number_input("Number of Rows (Groups)", min_value=2, value=st.session_state['chi_rows'])
-                            st.session_state['chi_cols'] = st.number_input("Number of Columns (Samples)", min_value=1, value=st.session_state['chi_cols'])
-
-                            for i in range(st.session_state['chi_rows']):
-                                for j in range(st.session_state['chi_cols']):
-                                    st.session_state['chi_table'][i][j] = st.number_input(
-                                        f"Enter Value for Group {i+1}, Sample {j+1}",
-                                        min_value=0, 
-                                        value=st.session_state['chi_table'][i][j]
-                                    )
-                        
                             try:
-                                table = np.array(st.session_state['chi_table'])
+                                table = np.array(additional_params['chi_table'])
                                 stat, p, dof, expected = chi2_contingency(table)
                                 st.write(f"**Chi-Square Test Statistic:** {stat:.4f}")
                                 st.write(f"**p-value:** {p:.4f}")
