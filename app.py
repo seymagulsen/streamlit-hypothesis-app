@@ -18,34 +18,26 @@ import scikit_posthocs as sp
 
 
 # --- Session State Initialization ---
-default_session_state = {
-    'step_completed': {
+
+if 'step_completed' not in st.session_state:
+    st.session_state['step_completed'] = {
         'Data Input': False,
         'Data Type': False,
         'Assumption Check': False,
         'Group Selection': False,
         'Run Test': False
-    },
-    'data': None,
-    'data_type': None,
-    'group_selection': None,
-    'parametric': False,
-    'paired': None,
-    'current_tab': '📂 Data Input',
-    'binomial_test_ran': False,
-    'binomial_p_value': None,
-    'mcnemar_test_ran': False,
-    'mcnemar_p_value': None,
-    'fisher_test_ran': False,
-    'fisher_p_value': None,
-    'chi_square_test_ran': False,
-    'chi_square_p_value': None
-}
+    }
 
-for key, value in default_session_state.items():
-    if key not in st.session_state:
-        st.session_state[key] = value
-        
+if 'data' not in st.session_state:
+    st.session_state['data'] = None
+if 'data_type' not in st.session_state:
+    st.session_state['data_type'] = None
+if 'group_selection' not in st.session_state:
+    st.session_state['group_selection'] = None
+if 'parametric' not in st.session_state:
+    st.session_state['parametric'] = False
+if 'paired' not in st.session_state:
+    st.session_state['paired'] = None
 if 'current_tab' not in st.session_state:
     st.session_state['current_tab'] = st.query_params.get("tab", "📂 Data Input")
 
@@ -498,16 +490,16 @@ if selected_tab == "🚀 Run Test":
                         success = st.number_input("Enter number of successes:", min_value=0, value=1)
                         trials = st.number_input("Enter number of trials:", min_value=1, value=1)
                         
-                        if st.button("Run Binomial Test"):
-                            try:
-                                result = stats.binomtest(success, trials, alternative=alternative)
-                                p = result.pvalue
-                                st.write(f"**Number of Successes:** {success}")
-                                st.write(f"**Number of Trials:** {trials}")
-                                st.write(f"**Binomial Test p-value:** {p:.4f}")
-                            except Exception as e:
-                                st.error(f"❌ **Error:** {e}")
-                                st.info("Please ensure you have entered valid values for the binomial test.")
+                        
+                        try:
+                            result = stats.binomtest(success, trials, alternative=alternative)
+                            p = result.pvalue
+                            st.write(f"**Number of Successes:** {success}")
+                            st.write(f"**Number of Trials:** {trials}")
+                            st.write(f"**Binomial Test p-value:** {p:.4f}")
+                        except Exception as e:
+                            st.error(f"❌ **Error:** {e}")
+                            st.info("Please ensure you have entered valid values for the binomial test.")
 
                     ## --- Two Samples ---
                     elif group_selection == "Two Samples":
@@ -519,17 +511,17 @@ if selected_tab == "🚀 Run Test":
                             no_yes = st.number_input("Condition Changed from No to Yes:", min_value=0, value=3)
                             no_no = st.number_input("Condition Not Met in Both Scenarios (No-No):", min_value=0, value=7)
 
-                            if st.button("Run McNemar Test"):
-                                try:
-                                    table = [[yes_yes, yes_no], [no_yes, no_no]]
-                                    result = mcnemar(table, exact=True)
-                                    stat = result.statistic
-                                    p = result.pvalue
-                                    st.write(f"**McNemar Test Statistic:** {stat:.4f}")
-                                    st.write(f"**McNemar Test p-value:** {p:.4f}")
-                                except Exception as e:
-                                    st.error(f"❌ **Error:** {e}")
-                                    st.info("Please ensure you have entered valid values for the contingency table.")
+                        
+                            try:
+                                table = [[yes_yes, yes_no], [no_yes, no_no]]
+                                result = mcnemar(table, exact=True)
+                                stat = result.statistic
+                                p = result.pvalue
+                                st.write(f"**McNemar Test Statistic:** {stat:.4f}")
+                                st.write(f"**McNemar Test p-value:** {p:.4f}")
+                            except Exception as e:
+                                st.error(f"❌ **Error:** {e}")
+                                st.info("Please ensure you have entered valid values for the contingency table.")
                         else:
                             st.subheader("🧪 **Unpaired Test: Fisher's Exact Test**")
                             st.write("Enter values for a 2x2 contingency table:")
@@ -538,15 +530,15 @@ if selected_tab == "🚀 Run Test":
                             group2_yes = st.number_input("Group 2: Condition Met (Yes):", min_value=0, value=7)
                             group2_no = st.number_input("Group 2: Condition Not Met (No):", min_value=0, value=8)
 
-                            if st.button("Run Fisher's Exact Test"):
-                                try:
-                                    table = [[group1_yes, group1_no], [group2_yes, group2_no]]
-                                    odds_ratio, p = fisher_exact(table)
-                                    st.write(f"**Odds Ratio:** {odds_ratio:.4f}")
-                                    st.write(f"**Fisher's Exact Test p-value:** {p:.4f}")
-                                except Exception as e:
-                                    st.error(f"❌ **Error:** {e}")
-                                    st.info("Please ensure you have entered valid values for the contingency table.")
+                            
+                            try:
+                                table = [[group1_yes, group1_no], [group2_yes, group2_no]]
+                                odds_ratio, p = fisher_exact(table)
+                                st.write(f"**Odds Ratio:** {odds_ratio:.4f}")
+                                st.write(f"**Fisher's Exact Test p-value:** {p:.4f}")
+                            except Exception as e:
+                                st.error(f"❌ **Error:** {e}")
+                                st.info("Please ensure you have entered valid values for the contingency table.")
         
                     ## --- More than Two Samples ---
                     elif group_selection == "More than Two Samples":
@@ -563,18 +555,18 @@ if selected_tab == "🚀 Run Test":
                                     group_data.append(val)
                                 data.append(group_data)
 
-                            if st.button("Run Cochran's Q Test"):
-                                try:
-                                    import numpy as np
-                                    data = pd.DataFrame(data).T
-                                    result = cochrans_q(data)
-                                    stat = result.statistic
-                                    p = result.pvalue
-                                    st.write(f"**Cochran's Q Test Statistic:** {stat:.4f}")
-                                    st.write(f"**p-value:** {p:.4f}")
-                                except Exception as e:
-                                    st.error(f"❌ **Error:** {e}")
-                                    st.info("Please ensure you have entered valid values for the contingency table.")
+                            
+                            try:
+                                import numpy as np
+                                data = pd.DataFrame(data).T
+                                result = cochrans_q(data)
+                                stat = result.statistic
+                                p = result.pvalue
+                                st.write(f"**Cochran's Q Test Statistic:** {stat:.4f}")
+                                st.write(f"**p-value:** {p:.4f}")
+                            except Exception as e:
+                                st.error(f"❌ **Error:** {e}")
+                                st.info("Please ensure you have entered valid values for the contingency table.")
   
                         else:
                             st.subheader("🧪 **Unpaired Test: Chi-Square Test**")
@@ -589,18 +581,18 @@ if selected_tab == "🚀 Run Test":
                                     row.append(val)
                                 table.append(row)
 
-                            if st.button("Run Chi-Square Test"):
-                                try:
-                                    table = np.array(table)
-                                    stat, p, dof, expected = chi2_contingency(table)
-                                    st.write(f"**Chi-Square Test Statistic:** {stat:.4f}")
-                                    st.write(f"**p-value:** {p:.4f}")
-                                    st.write(f"**Degrees of Freedom:** {dof}")
-                                    st.write("**Expected Frequencies:**")
-                                    st.write(pd.DataFrame(expected))
-                                except Exception as e:
-                                    st.error(f"❌ **Error:** {e}")
-                                    st.info("Please ensure you have entered valid values for the contingency table.")
+                        
+                            try:
+                                table = np.array(table)
+                                stat, p, dof, expected = chi2_contingency(table)
+                                st.write(f"**Chi-Square Test Statistic:** {stat:.4f}")
+                                st.write(f"**p-value:** {p:.4f}")
+                                st.write(f"**Degrees of Freedom:** {dof}")
+                                st.write("**Expected Frequencies:**")
+                                st.write(pd.DataFrame(expected))
+                            except Exception as e:
+                                st.error(f"❌ **Error:** {e}")
+                                st.info("Please ensure you have entered valid values for the contingency table.")
 
                 ## --- Final Result Message ---
                 if p < 0.05:
