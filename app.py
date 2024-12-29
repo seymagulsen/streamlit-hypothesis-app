@@ -22,6 +22,10 @@ if 'data_type' not in st.session_state:
     st.session_state['data_type'] = None
 if 'group_selection' not in st.session_state:
     st.session_state['group_selection'] = None
+if 'parametric' not in st.session_state:
+    st.session_state['parametric'] = False
+if 'paired' not in st.session_state:
+    st.session_state['paired'] = None
 
 # --- Sidebar for Title and Flowchart ---
 with st.sidebar:
@@ -153,7 +157,7 @@ with tab2:
         if st.session_state['data_type']:
             if st.button("Next: Assumption Check"):
                 st.session_state['step_completed']['Data Type'] = True
-                st.experimental_rerun()
+                st.rerun()
 
 # --- Tab 3: Assumption Check ---
 with tab3:
@@ -214,7 +218,7 @@ with tab3:
         # Proceed to Next Step
         if st.button("Next: Group Selection"):
             st.session_state['step_completed']['Assumption Check'] = True
-            st.experimental_rerun()
+            st.rerun()
 
 
 # --- Tab 4: Group Selection ---
@@ -227,7 +231,7 @@ with tab4:
         
         if st.button("Next: Run Test"):
             st.session_state['step_completed']['Group Selection'] = True
-            st.experimental_rerun()
+            st.rerun()
 
 # --- Tab 5: Run Test ---
 with tab5:
