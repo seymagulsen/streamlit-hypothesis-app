@@ -9,7 +9,7 @@ import ast
 # --- Session State Initialization ---
 if 'step_completed' not in st.session_state:
     st.session_state['step_completed'] = {
-        'Data Input': True,
+        'Data Input': False,
         'Data Type': False,
         'Assumption Check': False,
         'Group Selection': False,
@@ -105,7 +105,13 @@ with st.sidebar:
 
 st.title("ADS 511: Statistical Inference Methods Web Application")
 tabs = ["📂 Data Input", "📊 Data Type Selection", "🔍 Assumption Check", "🧑‍🤝‍🧑 Group Selection", "🚀 Run Test"]
+if st.session_state['current_tab'] not in tabs:
+    st.session_state['current_tab'] = "📂 Data Input"  # Ensure it defaults to the first tab if mismatched
+
+# Tab Selection
 selected_tab = st.radio("Navigation", tabs, index=tabs.index(st.session_state['current_tab']))
+st.session_state['current_tab'] = selected_tab
+
 
 # --- Tab 1: Data Input ---
 if selected_tab == "📂 Data Input":
