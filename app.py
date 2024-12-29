@@ -144,7 +144,7 @@ if selected_tab == "📂 Data Input":
         if st.button("Next: Data Type Selection"):
             st.session_state['step_completed']['Data Input'] = True
             st.session_state['current_tab'] = '📊 Data Type Selection'
-            st.experimental_set_query_params(tab='Data Type Selection')
+            st.query_params(tab='Data Type Selection')
 
 # --- Tab 2: Data Type Selection ---
 if selected_tab == "📊 Data Type Selection":
@@ -158,7 +158,7 @@ if selected_tab == "📊 Data Type Selection":
         if st.button("Next: Assumption Check"):
             st.session_state['step_completed']['Data Type'] = True
             st.session_state['current_tab'] = '🔍 Assumption Check'
-            st.experimental_set_query_params(tab='Assumption Check')
+            st.query_params(tab='Assumption Check')
 
 # --- Tab 3: Assumption Check ---
 if selected_tab == "🔍 Assumption Check":
@@ -232,7 +232,7 @@ if selected_tab == "🔍 Assumption Check":
         if st.button("Next: Group Selection"):
             st.session_state['step_completed']['Assumption Check'] = True
             st.session_state['current_tab'] = '🧑‍🤝‍🧑 Group Selection'
-            st.experimental_set_query_params(tab='Group Selection')
+            st.query_params(tab='Group Selection')
 
 # --- Tab 4: Group Selection ---
 if selected_tab == "🧑‍🤝‍🧑 Group Selection":
@@ -283,7 +283,7 @@ if selected_tab == "🧑‍🤝‍🧑 Group Selection":
             else:
                 st.session_state['step_completed']['Group Selection'] = True
                 st.session_state['current_tab'] = '🚀 Run Test'
-                st.experimental_set_query_params(tab='Run Test')
+                st.query_params(tab='Run Test')
 
 
 # --- Tab 5: Run Test ---
@@ -486,5 +486,5 @@ st.markdown("---")
 if st.button("🔄 Reset App"):
     for key in st.session_state.keys():
         del st.session_state[key]
-    st.experimental_set_query_params(tab='Data Input')
+    st.query_params(tab='Data Input')
     st.rerun()
