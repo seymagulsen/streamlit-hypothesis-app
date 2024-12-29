@@ -406,12 +406,10 @@ if selected_tab == "🚀 Run Test":
                                 st.write(f"**One-Way ANOVA F-Statistic:** {stat:.4f}, **p-value:** {p:.4f}")
                                 if p < 0.05:
                                     import scikit_posthocs as sp
-                                    st.success("✅ Significant Differences Found! Performing Pairwise T-tests...")
                                     # Ensure proper input formatting
-                                    posthoc_df = sp.posthoc_ttest(data.T, equal_var=True, p_adjust='bonferroni')
-                                    group_names = list(data.columns)
-                                    posthoc_df.index = group_names
-                                    posthoc_df.columns = group_names
+                                    long_data = pd.melt(data.reset_index(), id_vars='index', var_name='group', value_name='value')
+                                    posthoc_df = sp.posthoc_ttest(long_data, val_col='value',group_col='group', p_adjust='bonferroni')
+                                    st.success("✅ Significant Differences Found! Performing Pairwise T-tests...")  
                                     st.write("🔍 **Pairwise T-Test Results (Bonferroni Corrected):**")
                                     st.write(posthoc_df)
 
@@ -422,11 +420,9 @@ if selected_tab == "🚀 Run Test":
                                 st.write(f"**One-Way ANOVA F-Statistic:** {stat:.4f}, **p-value:** {p:.4f}")
                                 if p < 0.05:
                                     import scikit_posthocs as sp
-                                    st.success("✅ Significant Differences Found! Performing Pairwise T-tests...")
-                                    posthoc_df = sp.posthoc_ttest(data.T, equal_var=True, p_adjust='bonferroni')
-                                    group_names = list(data.columns)
-                                    posthoc_df.index = group_names
-                                    posthoc_df.columns = group_names
+                                    long_data = pd.melt(data.reset_index(), id_vars='index', var_name='group', value_name='value')
+                                    posthoc_df = sp.posthoc_ttest(long_data, val_col='value',group_col='group', p_adjust='bonferroni')
+                                    st.success("✅ Significant Differences Found! Performing Pairwise T-tests...")  
                                     st.write("🔍 **Pairwise T-Test Results (Bonferroni Corrected):**")
                                     st.write(posthoc_df)
 
@@ -454,11 +450,9 @@ if selected_tab == "🚀 Run Test":
                                 st.write(f"**Friedman Test Statistic:** {stat:.4f}, **p-value:** {p:.4f}")
                                 if p < 0.05:
                                     import scikit_posthocs as sp
-                                    st.success("✅ Significant Differences Found! Performing Pairwise T-tests...")
-                                    posthoc_df = sp.posthoc_ttest(data.T, equal_var=True, p_adjust='bonferroni')
-                                    group_names = list(data.columns)
-                                    posthoc_df.index = group_names
-                                    posthoc_df.columns = group_names
+                                    long_data = pd.melt(data.reset_index(), id_vars='index', var_name='group', value_name='value')
+                                    posthoc_df = sp.posthoc_ttest(long_data, val_col='value',group_col='group', p_adjust='bonferroni')
+                                    st.success("✅ Significant Differences Found! Performing Pairwise T-tests...")  
                                     st.write("🔍 **Pairwise T-Test Results (Bonferroni Corrected):**")
                                     st.write(posthoc_df)
                             else:
@@ -467,13 +461,11 @@ if selected_tab == "🚀 Run Test":
                                 st.write(f"**Kruskal-Wallis H Test Statistic:** {stat:.4f}, **p-value:** {p:.4f}")
                                 if p < 0.05:
                                     import scikit_posthocs as sp
-                                    st.success("✅ Significant Differences Found! Performing Pairwise T-tests...")
-                                    posthoc_df = sp.posthoc_ttest(data.T, equal_var=True, p_adjust='bonferroni')
-                                    group_names = list(data.columns)
-                                    posthoc_df.index = group_names
-                                    posthoc_df.columns = group_names
+                                    long_data = pd.melt(data.reset_index(), id_vars='index', var_name='group', value_name='value')
+                                    posthoc_df = sp.posthoc_ttest(long_data, val_col='value',group_col='group', p_adjust='bonferroni')
+                                    st.success("✅ Significant Differences Found! Performing Pairwise T-tests...")  
                                     st.write("🔍 **Pairwise T-Test Results (Bonferroni Corrected):**")
-                                    st.write(posthoc_df)   
+                                    st.write(posthoc_df) 
 
                 ## --- Discrete Data Workflow ---
                 if data_type == 'Discrete':
