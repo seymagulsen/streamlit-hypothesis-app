@@ -606,8 +606,12 @@ if selected_tab == "🚀 Run Test":
                             st.write("Enter values for a contingency table:")
 
                             try:
+                                import numpy as np
                                 table = np.array(additional_params['chi_table'])
-                                stat, p, dof, expected = chi2_contingency(table)
+                                statistic, p_value, dof, expected_freq = chi2_contingency(table)
+                                stat = statistic
+                                p = p_value
+                                expected = expected_freq
                                 st.write(f"**Chi-Square Test Statistic:** {stat:.4f}")
                                 st.write(f"**p-value:** {p:.4f}")
                                 st.write(f"**Degrees of Freedom:** {dof}")
