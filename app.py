@@ -490,11 +490,16 @@ if selected_tab == "🚀 Run Test":
                         trials = st.number_input("Enter number of trials:", min_value=1, value=1)
                         
                         if st.button("Run Binomial Test"):
-                            result = stats.binomtest(success, trials, alternative=alternative)
-                            p = result.pvalue
-                            st.write(f"**Number of Successes:** {success}")
-                            st.write(f"**Number of Trials:** {trials}")
-                            st.write(f"**Binomial Test p-value:** {p:.4f}")
+                            try:
+                                result = stats.binomtest(success, trials, alternative=alternative)
+                                p_value = result.pvalue
+                                st.write(f"**Number of Successes:** {success}")
+                                st.write(f"**Number of Trials:** {trials}")
+                                st.write(f"**Binomial Test p-value:** {p_value:.4f}")
+                            except Exception as e:
+                                st.error(f"❌ **Error:** {e}")
+                                st.info("Please ensure you have entered valid values for the binomial test.")
+
                     ## --- Two Samples ---
                     elif group_selection == "Two Samples":
                         if paired == "Paired":
