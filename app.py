@@ -208,7 +208,7 @@ with tab5:
                 st.write("📝 **One Sample Test Parameters:**")
                 additional_params['population_mean'] = st.number_input("Enter the Population Mean (μ₀) for comparison:",
                                                                       min_value=-1000.0,
-                                                                      max_value=1000.0,
+                                                                      max_value=10000.0,
                                                                       value=0.0,
                                                                       step=0.1)
             elif group_selection == "Two Samples":
