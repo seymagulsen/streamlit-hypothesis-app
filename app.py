@@ -407,7 +407,8 @@ if selected_tab == "🚀 Run Test":
                                 if p < 0.05:
                                     import scikit_posthocs as sp
                                     st.success("✅ Significant Differences Found! Performing Pairwise T-tests...")
-                                    posthoc_df = sp.posthoc_ttest(*[data[col] for col in data.columns], equal_var=True, p_adjust='bonferroni')
+                                    # Ensure proper input formatting
+                                    posthoc_df = sp.posthoc_ttest(data.T, equal_var=True, p_adjust='bonferroni')
                                     group_names = list(data.columns)
                                     posthoc_df.index = group_names
                                     posthoc_df.columns = group_names
@@ -422,7 +423,7 @@ if selected_tab == "🚀 Run Test":
                                 if p < 0.05:
                                     import scikit_posthocs as sp
                                     st.success("✅ Significant Differences Found! Performing Pairwise T-tests...")
-                                    posthoc_df = sp.posthoc_ttest(*[data[col] for col in data.columns], equal_var=True, p_adjust='bonferroni')
+                                    posthoc_df = sp.posthoc_ttest(data.T, equal_var=True, p_adjust='bonferroni')
                                     group_names = list(data.columns)
                                     posthoc_df.index = group_names
                                     posthoc_df.columns = group_names
@@ -454,7 +455,7 @@ if selected_tab == "🚀 Run Test":
                                 if p < 0.05:
                                     import scikit_posthocs as sp
                                     st.success("✅ Significant Differences Found! Performing Pairwise T-tests...")
-                                    posthoc_df = sp.posthoc_ttest(*[data[col] for col in data.columns], equal_var=True, p_adjust='bonferroni')
+                                    posthoc_df = sp.posthoc_ttest(data.T, equal_var=True, p_adjust='bonferroni')
                                     group_names = list(data.columns)
                                     posthoc_df.index = group_names
                                     posthoc_df.columns = group_names
@@ -467,7 +468,7 @@ if selected_tab == "🚀 Run Test":
                                 if p < 0.05:
                                     import scikit_posthocs as sp
                                     st.success("✅ Significant Differences Found! Performing Pairwise T-tests...")
-                                    posthoc_df = sp.posthoc_ttest(*[data[col] for col in data.columns], equal_var=True, p_adjust='bonferroni')
+                                    posthoc_df = sp.posthoc_ttest(data.T, equal_var=True, p_adjust='bonferroni')
                                     group_names = list(data.columns)
                                     posthoc_df.index = group_names
                                     posthoc_df.columns = group_names
