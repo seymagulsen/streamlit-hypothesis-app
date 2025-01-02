@@ -139,7 +139,6 @@ if selected_tab == "📂 Data Input":
             st.session_state['data'] = pd.read_csv(uploaded_file)
             st.write("📊 Dataset Preview:")
             st.dataframe(st.session_state['data'])
-            st.bar_chart(st.session_state['data'])
     else:
         manual_data = st.text_area("Enter data manually (e.g., [2,3,4], [1,2,3]):")
         if manual_data:
@@ -195,7 +194,6 @@ if selected_tab == "🔍 Assumption Check":
     if not st.session_state['step_completed']['Data Type']:
         st.warning("⚠️ Please complete 'Data Type Selection' first.")
     else:
-
         st.write("Performing assumption checks...")
 
         # Initialize assumption flags
@@ -205,18 +203,15 @@ if selected_tab == "🔍 Assumption Check":
         outliers = 0
 
         # Normality Test (Shapiro-Wilk Test)
-        with st.expander("🔍 Normality Test (Shapiro-Wilk)"):
-            try:
+        try:
+            with st.expander("🔍 Normality Test (Shapiro-Wilk)"):
                 shapiro_p = stats.shapiro(st.session_state['data'].iloc[:, 0])[1]
                 st.write(f"**Shapiro-Wilk p-value:** {shapiro_p:.4f}")
                 normal = shapiro_p > 0.05
                 st.success("✅ Data is normally distributed." if normal else "❌ Data is not normally distributed.")
-            except Exception as e:
-                st.error(f"Normality Test Error: {e}")
 
-        # Homogeneity of Variances (Levene's Test)
-        with st.expander("🔍 Homogeneity of Variances (Levene Test)"):
-            try:
+            # Homogeneity of Variances (Levene's Test)
+            with st.expander("🔍 Homogeneity of Variances (Levene Test)"):
                 if st.session_state['data'].shape[1] > 1:
                     levene_p = stats.levene(*[st.session_state['data'][col] for col in st.session_state['data'].columns])[1]
                     st.write(f"**Levene p-value:** {levene_p:.4f}")
@@ -225,37 +220,35 @@ if selected_tab == "🔍 Assumption Check":
                 else:
                     st.info("ℹ️ At least two groups are needed to test homogeneity of variances.")
                     homogeneous = True  # Assume True if only one group is present
-            except Exception as e:
-                st.error(f"Homogeneity Test Error: {e}")
 
-        # Independence Check
-        with st.expander("🔗 Independence and Identically Distributed Samples"):
-            st.write("""
-            - Samples should be collected independently.
-            - Each observation should not influence another observation.
-            - Samples should follow the same distribution.
-            """)
-            independence_check = st.checkbox("✅ Check if samples are independent and identically distributed")
-            st.success("✅ Samples are independent and identically distributed." if independence_check else "❌ Samples might not be independent or identically distributed.")
+            # Independence Check
+            with st.expander("🔗 Independence and Identically Distributed Samples"):
+                st.write("""
+                - Samples should be collected independently.
+                - Each observation should not influence another observation.
+                - Samples should follow the same distribution.
+                """)
+                independence_check = st.checkbox("✅ Check if samples are independent and identically distributed")
+                st.success("✅ Samples are independent and identically distributed." if independence_check else "❌ Samples might not be independent or identically distributed.")
 
-        # Outlier Detection (Z-Score Method)
-        with st.expander("⚠️ Absence of Significant Outliers"):
-            try:
+            # Outlier Detection (Z-Score Method)
+            with st.expander("⚠️ Absence of Significant Outliers"):
                 z_scores = (st.session_state['data'] - st.session_state['data'].mean()) / st.session_state['data'].std()
                 outliers = (z_scores.abs() > 3).sum().sum()
                 st.write(f"**Number of Outliers Detected:** {outliers}")
                 st.success("✅ No significant outliers detected." if outliers == 0 else f"⚠️ {outliers} significant outlier(s) detected.")
-            except Exception as e:
-                st.error(f"Outlier Detection Error: {e}")
 
-        # Final Decision on Parametric/Non-Parametric Tests
-        st.markdown("---")
-        st.session_state['parametric'] = normal and homogeneous and independence_check and outliers == 0
+            # Final Decision on Parametric/Non-Parametric Tests
+            st.markdown("---")
+            st.session_state['parametric'] = normal and homogeneous and independence_check and outliers == 0
         
-        if st.session_state['parametric']:
-            st.success("✅ **All assumptions hold. Proceed with Parametric Tests.**")
-        else:
-            st.warning("❌ **Assumptions violated. Proceed with Non-Parametric Tests.**")
+            if st.session_state['parametric']:
+                st.success("✅ **All assumptions hold. Proceed with Parametric Tests.**")
+            else:
+                st.warning("❌ **Assumptions violated. Proceed with Non-Parametric Tests.**")
+        
+        except Exception as e:
+            st.error(f"Assumption Check Error: {e}")
 
         # Proceed to the Next Step
         if st.button("Next: Group Selection"):
