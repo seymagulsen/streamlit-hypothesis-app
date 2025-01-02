@@ -670,7 +670,8 @@ if selected_tab == "🚀 Run Test":
                         st.success("✅ **Statistically Significant Result:** Reject Null Hypothesis")
                     else:
                         st.warning("❌ **Not Statistically Significant:** Fail to Reject Null Hypothesis")
-                
+                else:
+                    st.warning("ℹ️ Test was not performed due to invalid parameter selection.")
 
             except Exception as e:
                 st.error(f"❌ **Error:** {e}")
