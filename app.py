@@ -447,7 +447,7 @@ if selected_tab == "🚀 Run Test":
                             st.subheader("🧪 **One Sample Test: One Sample t-test**")
                             params = additional_params['param']
                             stat, p = stats.ttest_1samp(data.iloc[:, 0], params, alternative=alternative)
-                            st.write(f"**One Sample t-test Statistic:** {stat:.4f},**p-value:** {p:.4f}")
+                            st.write(f"**One Sample t-test Statistic:** {stat:.4f}, **p-value:** {p:.4f}")
 
                         elif group_selection == "Two Samples":
                             if paired == "Paired":
