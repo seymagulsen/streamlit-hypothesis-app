@@ -347,13 +347,36 @@ if selected_tab == "🚀 Run Test":
         if data_type == "Continuous":
             st.subheader("📊 Continuous Data Test Parameters")
             if group_selection == "One Sample":
-                additional_params['population_mean'] = st.number_input(
-                    "Enter Population Mean (μ₀) for comparison:",
-                    min_value=-1000.0,
-                    max_value=10000.0,
-                    value=0.0,
-                    step=0.1
+                test_paremeter = st.radio(
+                    "Choose Comparison Parameter:",
+                    ["Population Mean (μ₀)", "Population Median (M₀)", "Specific Value"],
+                    index=0,
+                    help="Select the parameter to compare your sample data against."
                 )
+                if test_paremeter == "Population Mean (μ₀)": 
+                    additional_params['param'] = st.number_input(
+                        "Enter Population Mean (μ₀) for comparison:",
+                        min_value=-1000.0,
+                        max_value=10000.0,
+                        value=0.0,
+                        step=0.1
+                    )
+                elif test_paremeter == "Population Median (M₀)":
+                    additional_params['param'] = st.number_input(
+                        "Enter Population Median (M₀) for comparison:",
+                        min_value=-1000.0,
+                        max_value=10000.0,
+                        value=0.0,
+                        step=0.1
+                    )
+                else:
+                    additional_params['param'] = st.number_input(
+                        "Enter Specific Value for comparison:",
+                        min_value=-1000.0,
+                        max_value=10000.0,
+                        value=0.0,
+                        step=0.1
+                    )
             
             elif group_selection in ["Two Samples", "More than Two Samples"]:
                 st.write("🧠 Sample Type:")
@@ -422,9 +445,8 @@ if selected_tab == "🚀 Run Test":
                         # Parametric Tests
                         if group_selection == "One Sample":
                             st.subheader("🧪 **One Sample Test: One Sample t-test**")
-                            population_mean = additional_params['population_mean']
-                            stat, p = stats.ttest_1samp(data.iloc[:, 0], population_mean, alternative=alternative)
-                            st.write(f"**Population Mean (μ₀):** {population_mean:.4f}")
+                            params = additional_params['param']
+                            stat, p = stats.ttest_1samp(data.iloc[:, 0], params, alternative=alternative)
                             st.write(f"**One Sample t-test Statistic:** {stat:.4f},**p-value:** {p:.4f}")
 
                         elif group_selection == "Two Samples":
@@ -480,8 +502,8 @@ if selected_tab == "🚀 Run Test":
                         # Non-Parametric Tests
                         if group_selection == "One Sample":
                             st.subheader("🧪 **Non-Parametric One Sample Test: Wilcoxon Signed-Rank Test**")
-                            population_mean = additional_params['population_mean']
-                            diff = data.iloc[:, 0] - population_mean
+                            params = additional_params['param']
+                            diff = data.iloc[:, 0] - params
                             stat, p = stats.wilcoxon(diff, alternative=alternative)
                             st.write(f"**Wilcoxon Signed-Rank Test Statistic:** {stat:.4f}, **p-value:** {p:.4f}")
                         elif group_selection == "Two Samples":
