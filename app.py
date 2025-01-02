@@ -526,7 +526,7 @@ if selected_tab == "🚀 Run Test":
                                     alternative=alternative)
                                 st.write(f"**Wilcoxon Signed-Rank Test Statistic:** {stat:.4f}, **p-value:** {p:.4f}")
                             elif test_parameter == "Population Mean (μ₀)":
-                                p=None
+                                p=0
                                 st.error("❌ Mean comparison cannot be performed using a non-parametric test. Please select a parametric test.")
                             else:
                                 st.subheader("🧪 **Non-Parametric One Sample Test: Wilcoxon Signed-Rank Test**")
@@ -665,10 +665,12 @@ if selected_tab == "🚀 Run Test":
                                 st.info("Please ensure you have entered valid values for the contingency table.")
 
                 ## --- Final Result Message ---
-                if p < 0.05:
-                    st.success("✅ **Statistically Significant Result:** Reject Null Hypothesis")
-                else:
-                    st.warning("❌ **Not Statistically Significant:** Fail to Reject Null Hypothesis")
+                if p is not None:
+                    if p < 0.05:
+                        st.success("✅ **Statistically Significant Result:** Reject Null Hypothesis")
+                    else:
+                        st.warning("❌ **Not Statistically Significant:** Fail to Reject Null Hypothesis")
+                
 
             except Exception as e:
                 st.error(f"❌ **Error:** {e}")
