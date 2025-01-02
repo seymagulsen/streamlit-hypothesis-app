@@ -526,7 +526,7 @@ if selected_tab == "🚀 Run Test":
                                     alternative=alternative)
                                 st.write(f"**Wilcoxon Signed-Rank Test Statistic:** {stat:.4f}, **p-value:** {p:.4f}")
                             elif test_parameter == "Population Mean (μ₀)":
-                                p=0
+                                p = None
                                 st.error("❌ Mean comparison cannot be performed using a non-parametric test. Please select a parametric test.")
                             else:
                                 st.subheader("🧪 **Non-Parametric One Sample Test: Wilcoxon Signed-Rank Test**")
