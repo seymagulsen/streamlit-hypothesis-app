@@ -203,14 +203,15 @@ if selected_tab == "🔍 Assumption Check":
 
         # Normality Test (Shapiro-Wilk Test)
         try:
-            with st.expander("🔍 Normality Test (Shapiro-Wilk)"):
+            with st.expander("🔍 Assumption Check Details", expanded=True):
+                st.subheader("🔍 Normality Test (Shapiro-Wilk)")
                 shapiro_p = stats.shapiro(st.session_state['data'].iloc[:, 0])[1]
                 st.write(f"**Shapiro-Wilk p-value:** {shapiro_p:.4f}")
                 normal = shapiro_p > 0.05
                 st.success("✅ Data is normally distributed." if normal else "❌ Data is not normally distributed.")
 
-            # Homogeneity of Variances (Levene's Test)
-            with st.expander("🔍 Homogeneity of Variances (Levene Test)"):
+                # Homogeneity of Variances (Levene's Test)
+                st.subheader("🔍 Homogeneity of Variances (Levene's Test)")
                 if st.session_state['data'].shape[1] > 1:
                     levene_p = stats.levene(*[st.session_state['data'][col] for col in st.session_state['data'].columns])[1]
                     st.write(f"**Levene p-value:** {levene_p:.4f}")
@@ -220,8 +221,8 @@ if selected_tab == "🔍 Assumption Check":
                     st.info("ℹ️ At least two groups are needed to test homogeneity of variances.")
                     homogeneous = True  # Assume True if only one group is present
 
-            # Independence Check
-            with st.expander("🔗 Independence and Identically Distributed Samples"):
+                # Independence Check
+                st.subheader("🔗 Independence and Identically Distributed Samples")
                 st.write("""
                 - Samples should be collected independently.
                 - Each observation should not influence another observation.
@@ -230,8 +231,8 @@ if selected_tab == "🔍 Assumption Check":
                 independence_check = st.checkbox("✅ Check if samples are independent and identically distributed")
                 st.success("✅ Samples are independent and identically distributed." if independence_check else "❌ Samples might not be independent or identically distributed.")
 
-            # Outlier Detection (Z-Score Method)
-            with st.expander("⚠️ Absence of Significant Outliers"):
+                # Outlier Detection (Z-Score Method)
+                st.subheader("🔍 Outlier Detection (Z-Score Method)")
                 z_scores = (st.session_state['data'] - st.session_state['data'].mean()) / st.session_state['data'].std()
                 outliers = (z_scores.abs() > 3).sum().sum()
                 st.write(f"**Number of Outliers Detected:** {outliers}")
