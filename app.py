@@ -148,7 +148,6 @@ if selected_tab == "📂 Data Input":
                     st.session_state['data'] = pd.DataFrame({f'Group_{i+1}': group for i, group in enumerate(parsed_data)})
                     st.write("📊 Dataset Preview:")
                     st.dataframe(st.session_state['data'])
-                    st.line_chart(st.session_state['data'])
                 else:
                     st.error("Invalid format! Ensure all groups are lists.")
             except Exception as e:
