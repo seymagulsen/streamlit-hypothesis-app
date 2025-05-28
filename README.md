@@ -1,3 +1,5 @@
+# Access the app by the link: https://app-hypothesis-app-qk48mv4skpehvpzappx5nj8.streamlit.app/
+
 # Hypothesis Testing Steps
 
 ## Define the Hypotheses
